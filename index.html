@@ -1,953 +1,1203 @@
 <!DOCTYPE html>
 <html lang="hy">
 <head>
-    <meta charset="UTF-8">
-    <title>Epica: Campaign Conquest</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600&display=swap');
-
-        html, body {
-            background: #020408;
-            color: #f8fafc;
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-            width: 100vw;
-            height: 100vh;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-
-        .screen {
-            display: none;
-            width: 100vw;
-            height: 100vh;
-            position: absolute;
-            top: 0;
-            left: 0;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .active-screen {
-            display: flex;
-        }
-
-        .box-container {
-            background: rgba(8, 12, 20, 0.95);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(217, 119, 6, 0.5);
-            border-radius: 20px;
-            width: 90%;
-            max-width: 800px;
-            padding: 35px;
-            text-align: center;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.95);
-        }
-
-        .box-container h2 {
-            font-family: 'Cinzel', serif;
-            font-size: 32px;
-            margin-top: 0;
-            color: #fbbf24;
-            letter-spacing: 1px;
-            text-shadow: 0 2px 15px rgba(245,158,11,0.4);
-        }
-
-        .rules-list {
-            text-align: left;
-            background: rgba(15, 23, 42, 0.7);
-            border: 1px solid rgba(217, 119, 6, 0.3);
-            border-radius: 12px;
-            padding: 20px 25px;
-            margin: 20px 0;
-            font-size: 14px;
-            line-height: 1.6;
-            color: #cbd5e1;
-        }
-
-        .rules-list li {
-            margin-bottom: 12px;
-        }
-
-        .highlight-danger {
-            color: #ef4444;
-            font-weight: 600;
-        }
-
-        .levels-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 15px;
-            margin: 25px 0;
-        }
-
-        .level-card {
-            background: rgba(15, 23, 42, 0.9);
-            border: 2px solid rgba(217, 119, 6, 0.3);
-            border-radius: 14px;
-            padding: 20px 10px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .level-card:hover:not(.locked) {
-            border-color: #fbbf24;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
-        }
-
-        .level-card.locked {
-            opacity: 0.4;
-            border-color: #334155;
-            cursor: not-allowed;
-        }
-
-        .level-title {
-            font-family: 'Cinzel', serif;
-            font-weight: 700;
-            font-size: 20px;
-            color: #fbbf24;
-        }
-
-        .level-subtitle {
-            font-size: 11px;
-            color: #94a3b8;
-            margin-top: 4px;
-        }
-
-        .battle-arena-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            background: #020408;
-            overflow: hidden;
-        }
-
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-
-        button {
-            background: linear-gradient(180deg, #d97706, #b45309);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 12px 24px;
-            cursor: pointer;
-            border-radius: 10px;
-            font-family: 'Cinzel', serif;
-            font-weight: 700;
-            font-size: 15px;
-            box-shadow: 0 4px 0 #78350f, 0 8px 20px rgba(0,0,0,0.5);
-        }
-
-        button:disabled {
-            background: #1e293b;
-            border-color: rgba(255, 255, 255, 0.05);
-            color: #475569;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        .shop-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin: 25px 0;
-        }
-
-        .shop-item-card {
-            background: rgba(15, 23, 42, 0.9);
-            border: 1px solid rgba(217, 119, 6, 0.3);
-            padding: 15px;
-            border-radius: 14px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        #hud-left-panel {
-            position: absolute;
-            bottom: 25px;
-            left: 30px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            z-index: 10;
-        }
-
-        .ground-weapons-tray {
-            display: flex;
-            gap: 10px;
-            background: rgba(8, 12, 20, 0.88);
-            backdrop-filter: blur(15px);
-            padding: 14px;
-            border-radius: 16px;
-            border: 1px solid rgba(217, 119, 6, 0.4);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-        }
-
-        .ground-weapon-card {
-            background: linear-gradient(180deg, #1e293b, #0f172a);
-            border: 1px solid rgba(217, 119, 6, 0.4);
-            color: #fbbf24;
-            padding: 10px 14px;
-            border-radius: 12px;
-            cursor: pointer;
-            text-align: center;
-            min-width: 90px;
-        }
-
-        .ground-weapon-card:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        /* ⚡ Super Ability Button Styling */
-        #super-ability-btn {
-            background: linear-gradient(180deg, #2563eb, #1d4ed8);
-            border: 2px solid #60a5fa;
-            box-shadow: 0 0 20px rgba(37, 99, 235, 0.6);
-            height: 100%;
-            padding: 15px 20px;
-            font-size: 14px;
-            white-space: nowrap;
-        }
-
-        #turn-indicator {
-            position: absolute;
-            top: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(10, 14, 23, 0.9);
-            backdrop-filter: blur(15px);
-            padding: 12px 30px;
-            border-radius: 30px;
-            border: 1px solid rgba(217, 119, 6, 0.4);
-            font-family: 'Cinzel', serif;
-            font-size: 16px;
-            font-weight: 700;
-            color: #fbbf24;
-            z-index: 10;
-        }
-
-        #enemy-weapons-panel {
-            position: absolute;
-            top: 25px;
-            right: 30px;
-            background: rgba(10, 14, 23, 0.85);
-            backdrop-filter: blur(10px);
-            padding: 10px 18px;
-            border-radius: 14px;
-            border: 1px solid rgba(220, 38, 38, 0.4);
-            color: #fca5a5;
-            font-size: 12px;
-            z-index: 10;
-        }
-
-        #game-over-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(3, 5, 8, 0.88);
-            backdrop-filter: blur(15px);
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-
-        #tutorial-overlay {
-    display: none; 
-    position: absolute; 
-    top: 0; 
-    left: 0; 
-    width: 100vw; 
-    height: 100vh; 
-    background: rgba(0,0,0,0.85); 
-    backdrop-filter: blur(8px); 
-    z-index: 200; 
-    align-items: center; 
-    justify-content: center; 
-    flex-direction: column;
+<meta charset="UTF-8">
+<title>The Mystery of the 12 Gold Bars — Multiplayer</title>
+<style>
+  * * {
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-        .game-over-box {
-            background: rgba(10, 14, 23, 0.95);
-            border: 2px solid rgba(217, 119, 6, 0.6);
-            padding: 50px 70px;
-            border-radius: 24px;
-            text-align: center;
-        }
-    </style>
+html, body {
+  overflow-x: hidden;
+  touch-action: manipulation;
+}
+
+/* Ոսկիները՝ touch-ը կանխելու համար */
+.gold {
+  touch-action: none;
+  -webkit-touch-callout: none;
+}
+
+/* Նժարներն ու սեղանը՝ նաև */
+.pan, .table-area, .weighed-area {
+  touch-action: none;
+}
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: radial-gradient(circle at 50% 0%, #2b1d0e, #0d0805 80%);
+    color: #f5e6c8;
+    min-height: 100vh;
+    padding: 16px;
+  }
+  h1 {
+    text-align: center;
+    color: #ffd76e;
+    text-shadow: 0 0 12px #ff9d00;
+    margin: 0 0 10px;
+    font-size: 24px;
+  }
+  .topbar {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+    font-size: 15px;
+  }
+  .topbar > div {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid #7a5a25;
+    border-radius: 10px;
+    padding: 7px 14px;
+    box-shadow: 0 0 10px rgba(255,180,0,0.2) inset;
+  }
+  .timer { color: #7fffd4; font-weight: bold; }
+  .weighcount { color: #ffb347; font-weight: bold; }
+  .player-name { color: #ffd76e; font-weight: bold; }
+
+  /* Սկզբնական էկրան */
+  .start-screen {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+  }
+  .start-box {
+    background: linear-gradient(180deg, #3a2a12, #1a1208);
+    border: 3px solid #b8860b;
+    border-radius: 18px;
+    padding: 30px 34px;
+    text-align: center;
+    box-shadow: 0 0 40px #ff9d00;
+    max-width: 460px;
+    width: 92%;
+  }
+  .start-box h2 { color: #ffd76e; margin-top: 0; }
+  .start-box p { color: #c9b58a; font-size: 14px; line-height: 1.6; }
+  .start-box input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 2px solid #8b6508;
+    background: #1a1208;
+    color: #fff;
+    font-size: 17px;
+    text-align: center;
+    margin: 10px 0;
+    font-family: inherit;
+  }
+  .start-box input:focus { outline: 2px solid #ffd76e; }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 16px;
+    max-width: 1250px;
+    margin: 0 auto;
+  }
+  @media (max-width: 950px) {
+    .main-grid { grid-template-columns: 1fr; }
+  }
+  .game-col { min-width: 0; }
+
+  /* Սեղան */
+  .table-area {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    min-height: 86px;
+    background: rgba(60,40,15,0.5);
+    border: 2px dashed #8a6a2a;
+    border-radius: 14px;
+    margin: 0 auto 14px;
+  }
+
+  /* Ոսկի */
+  .gold {
+    width: 58px; height: 58px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 28%, #fff3b0, #ffd23f 40%, #b8860b 100%);
+    border: 2px solid #8b6508;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 20px;
+    color: #5a3b00;
+    cursor: grab;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.6), inset 0 -4px 8px rgba(120,70,0,0.5);
+    transition: transform .12s, box-shadow .12s;
+    position: relative;
+    touch-action: none;
+  }
+  .gold:hover { transform: scale(1.08); box-shadow: 0 0 18px #ffd76e; }
+  .gold.dragging { opacity: .45; cursor: grabbing; }
+
+  /* Կշռված ոսկին՝ ավելի մուգ */
+  .gold.weighed {
+    filter: saturate(0.6) brightness(0.85);
+  }
+
+  /* «✕» կոճակը */
+  .gold .remove-btn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #ff6b6b, #c0392b);
+    color: #fff;
+    border: 2px solid #6b1010;
+    font-size: 14px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    z-index: 10;
+    padding: 0;
+    line-height: 1;
+    transition: transform .12s, filter .12s;
+    font-family: inherit;
+  }
+  .gold .remove-btn:hover {
+    filter: brightness(1.2);
+    transform: scale(1.15);
+  }
+  .gold .remove-btn:active {
+    transform: scale(0.95);
+  }
+
+  /* Չկշռված ոսկու վրա «✕»-ը հայտնվում է միայն hover-ով */
+  .gold:not(.weighed) .remove-btn {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .gold:not(.weighed):hover .remove-btn {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Կշեռք */
+  .scale-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    margin: 8px auto 16px;
+  }
+  .pan-container { display: flex; flex-direction: column; align-items: center; flex: 1; max-width: 360px; }
+  .pan-label { font-size: 16px; color: #ffd76e; margin-bottom: 5px; letter-spacing: 1px; }
+  .pan {
+    width: 100%;
+    min-height: 100px;
+    background: linear-gradient(180deg, #4a3416, #2a1d0a);
+    border: 3px solid #b8860b;
+    border-radius: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    box-shadow: inset 0 0 25px rgba(0,0,0,0.7), 0 6px 14px rgba(0,0,0,0.5);
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .pan.drop-active { border-color: #7fffd4; box-shadow: 0 0 20px #7fffd4 inset, 0 0 18px #7fffd4; }
+
+  .result-display {
+    text-align: center;
+    font-size: 19px;
+    font-weight: bold;
+    min-height: 34px;
+    margin: 6px 0 12px;
+    transition: all .25s;
+  }
+  .res-equal { color: #7fffd4; text-shadow: 0 0 10px #7fffd4; }
+  .res-left { color: #ff9d6e; text-shadow: 0 0 10px #ff5e00; }
+  .res-right { color: #9db8ff; text-shadow: 0 0 10px #3f6fff; }
+
+  .controls { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  button {
+    padding: 11px 22px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 12px;
+    border: 2px solid #8b6508;
+    background: linear-gradient(180deg, #ffd76e, #d4a017);
+    color: #3b2600;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #6b4c00, 0 6px 12px rgba(0,0,0,0.5);
+    transition: all .1s;
+    font-family: inherit;
+  }
+  button:hover:not(:disabled) { filter: brightness(1.1); }
+  button:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 #6b4c00; }
+  button:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
+  button.weigh-btn { background: linear-gradient(180deg, #7fffd4, #20b2aa); border-color: #0d7a70; color: #003b36; box-shadow: 0 4px 0 #0a5a52, 0 6px 12px rgba(0,0,0,0.5); }
+  button.reset-btn { background: linear-gradient(180deg, #ff8a8a, #d63b3b); border-color: #8b1a1a; color: #fff; box-shadow: 0 4px 0 #6b1010, 0 6px 12px rgba(0,0,0,0.5); }
+
+  .weighed-area {
+    margin: 0 auto 14px;
+    padding: 10px;
+    min-height: 76px;
+    background: rgba(30,60,30,0.45);
+    border: 2px dashed #3fa34d;
+    border-radius: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+  }
+  .weighed-area .placeholder { color: #6a9a6a; font-style: italic; font-size: 13px; }
+  .section-title {
+    text-align: center;
+    font-size: 14px;
+    color: #9fdc9f;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+
+  /* Կշռումների պատմություն */
+  .history-panel {
+    background: rgba(0,0,0,0.35);
+    border: 1px solid #7a5a25;
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    min-height: 60px;
+  }
+  .history-panel h3 {
+    margin: 0 0 8px;
+    color: #ffd76e;
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+  .history-item {
+    padding: 6px 8px;
+    margin-bottom: 5px;
+    border-radius: 6px;
+    background: rgba(255,215,110,0.08);
+    border-left: 3px solid #b8860b;
+    font-family: monospace;
+    font-size: 12.5px;
+  }
+  .history-item .res-tag { font-weight: bold; }
+  .history-item .res-tag.eq { color: #7fffd4; }
+  .history-item .res-tag.lf { color: #ff9d6e; }
+  .history-item .res-tag.rt { color: #9db8ff; }
+  .history-empty { color: #8a7a55; font-style: italic; }
+
+  /* Գուշակման մոդալ */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    padding: 14px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: linear-gradient(180deg, #3a2a12, #1a1208);
+    border: 3px solid #b8860b;
+    border-radius: 18px;
+    padding: 22px 26px;
+    max-width: 540px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 0 40px #ff9d00;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+  .modal h2 { color: #ffd76e; margin-top: 0; font-size: 20px; }
+  .choice-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin: 14px 0;
+  }
+  .choice-grid button {
+    width: 52px; height: 52px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 18px;
+    background: radial-gradient(circle at 32% 28%, #fff3b0, #ffd23f 40%, #b8860b 100%);
+    color: #5a3b00;
+    border: 2px solid #8b6508;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.6);
+  }
+  .choice-grid button.selected {
+    outline: 4px solid #7fffd4;
+    transform: scale(1.1);
+  }
+  .type-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 10px 0;
+  }
+  .type-toggle button {
+    padding: 8px 18px;
+    font-size: 14px;
+    background: linear-gradient(180deg, #6a5a2a, #3a2a12);
+    color: #ffe9b0;
+    border-color: #8b6508;
+    box-shadow: 0 3px 0 #2a1d0a;
+  }
+  .type-toggle button.selected {
+    background: linear-gradient(180deg, #7fffd4, #20b2aa);
+    color: #003b36;
+    border-color: #0d7a70;
+  }
+  .reason-input {
+    width: 100%;
+    min-height: 90px;
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #8b6508;
+    background: #1a1208;
+    color: #f5e6c8;
+    font-size: 14px;
+    resize: vertical;
+    font-family: inherit;
+  }
+  .modal-actions { display: flex; gap: 10px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
+
+  .feedback {
+    text-align: center;
+    font-size: 16px;
+    margin: 12px auto;
+    padding: 12px;
+    border-radius: 12px;
+    line-height: 1.6;
+  }
+  .feedback.win { background: rgba(46,204,113,0.2); border: 2px solid #2ecc71; color: #7dffb0; }
+  .feedback.lose { background: rgba(231,76,60,0.2); border: 2px solid #e74c3c; color: #ff9b8f; }
+  .feedback.info { background: rgba(255,215,110,0.12); border: 2px solid #b8860b; color: #ffd76e; }
+
+  .rules {
+    font-size: 12.5px;
+    color: #c9b58a;
+    background: rgba(0,0,0,0.3);
+    border-left: 4px solid #b8860b;
+    padding: 9px 14px;
+    border-radius: 8px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+
+  /* Առաջատարների աղյուսակ */
+  .leaderboard {
+    background: linear-gradient(180deg, #2a1d0a, #1a1208);
+    border: 2px solid #8b6508;
+    border-radius: 14px;
+    padding: 12px;
+    max-height: 600px;
+    overflow-y: auto;
+    box-shadow: 0 0 20px rgba(255,180,0,0.15);
+  }
+  .leaderboard h3 {
+    margin: 0 0 10px;
+    color: #ffd76e;
+    font-size: 15px;
+    letter-spacing: 1px;
+    text-align: center;
+    border-bottom: 1px solid #5a3b00;
+    padding-bottom: 8px;
+  }
+  .lb-entry {
+    background: rgba(255,215,110,0.05);
+    border-left: 3px solid #b8860b;
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+  .lb-entry .lb-name {
+    color: #ffd76e;
+    font-weight: bold;
+    font-size: 14px;
+  }
+  .lb-entry .lb-stat { color: #c9b58a; }
+  .lb-entry .lb-stat b { color: #fff; }
+  .lb-entry .lb-win { color: #7dffb0; font-weight: bold; }
+  .lb-entry .lb-lose { color: #ff9b8f; font-weight: bold; }
+  .lb-entry .lb-reason {
+    color: #a8c8a8;
+    font-style: italic;
+    font-size: 11.5px;
+    margin-top: 4px;
+    padding-left: 6px;
+    border-left: 2px solid #3fa34d;
+  }
+  .lb-empty { color: #8a7a55; font-style: italic; text-align: center; padding: 20px 0; font-size: 13px; }
+  .lb-actions { display: flex; gap: 8px; margin-top: 10px; justify-content: center; flex-wrap: wrap; }
+  .lb-actions button { font-size: 12px; padding: 7px 12px; }
+
+  .badge {
+    display: inline-block;
+    background: #8b6508;
+    color: #ffe9b0;
+    border-radius: 6px;
+    padding: 1px 8px;
+    font-size: 11px;
+    margin-right: 4px;
+  }
+</style>
 </head>
 <body>
 
-    <!-- 0. ԽԱՂԻ ԿԱՆՈՆՆԵՐԻ ԷԿՐԱՆ -->
-    <div id="screen-rules" class="screen active-screen">
-        <div class="box-container">
-            <h2>📜 ԽԱՂԻ ԿԱՆՈՆՆԵՐԸ</h2>
-            <div class="rules-list">
-                <ul>
-                    <li>⚔️ <b>Հերթափոխով Մարտ:</b> Ընտրեք զենքը ձեր արսենալից՝ հակառակորդին հարվածելու համար:</li>
-                    <li>💰 <b>Արսենալ և Ոսկի:</b> Ամեն մակարդակ մտնելիս ստանում եք ոսկի: Խանութում կարող եք գնել ավելի հզոր զենքեր:</li>
-                    <li>⚠️ <span class="highlight-danger">ՀԱԿԱԴԱՐՁ ՎՆԱՍ (OVERKILL):</span> Եթե ձեր հասցրած վնասը գերազանցում է հակառակորդի մնացած HP-ն, <b>արտահոսած վնասը հետ է հարվածում ՁԵԶ</b>:</li>
-                    <li>⚡ <b>ԳԵՐՀԱՐՎԱԾ (3-րդ մակարդակից):</b> 3-րդ մակարդակից սկսած բացվում է Էներգետիկ Կայծակ կոճակը, որը լիցքավորվում է քայլերի ընթացքում և հասցնում հզոր վնաս:</li>
-                </ul>
-            </div>
-            <button onclick="showScreen('screen-levels')" style="font-size: 17px; padding: 12px 40px;">Հասկացա ➔</button>
-        </div>
+<h1>🏆 12 Ոսկե Ձուլակտորների Առեղծվածը</h1>
+
+<div class="topbar">
+  <div>👤 Խաղացող՝ <span class="player-name" id="playerDisplay">—</span></div>
+  <div>⏱ Ժամանակ՝ <span class="timer" id="timer">00:00.0</span></div>
+  <div>⚖️ Կշռումներ՝ <span class="weighcount" id="weighCount">0</span> / 3</div>
+</div>
+
+<div class="main-grid">
+  <div class="game-col">
+    <div class="rules">
+      <span class="badge">Կանոն</span> 12 ոսկուց մեկը կեղծ է՝ կա՛մ մի փոքր ավելի ծանր, կա՛մ մի փոքր ավելի թեթև (ամեն անգամ պատահական)։ Ունես <b>ընդամենը 3 կշռում</b>։
+      Քաշիր ոսկիները մկնիկով ձախ/աջ նժարների և սեղանի միջև։ Կշռված ոսկու վրա կհայտնվի <b>կարմիր «✕»</b> կոճակ — սեղմելով այն կտեղափոխվի «Կշռված ոսկիներ» դաշտ։ Կշռված դաշտից կարող ես «✕»-ով վերադարձնել սեղան՝ նորից օգտագործելու համար (քանի դեռ 3 կշռումը չի սպառվել)։
     </div>
 
-    <!-- 1. ՄԱԿԱՐԴԱԿՆԵՐԻ ԸՆՏՐՈՒԹՅԱՆ ԷԿՐԱՆ -->
-    <div id="screen-levels" class="screen">
-        <div class="box-container">
-            <h2>ԸՆՏՐԵՔ ՄԱԿԱՐԴԱԿԸ</h2>
-            <p style="color: #94a3b8; font-size: 14px; margin-bottom: 20px;">Հաղթեք յուրաքանչյուր մարտում՝ հաջորդ փուլը բացելու համար</p>
-            <div class="levels-grid" id="levels-container"></div>
-            <button onclick="showScreen('screen-rules')" style="background: #334155; font-size: 13px;">📖 Կանոններ</button>
-        </div>
+    <div class="section-title">🪵 ՍԵՂԱՆ (չկշռված ոսկիներ)</div>
+    <div class="table-area" id="tableArea"></div>
+
+    <div class="scale-wrap">
+      <div class="pan-container">
+        <div class="pan-label">◀ ՁԱԽ ՆԺԱՐ</div>
+        <div class="pan" id="leftPan" data-side="left"></div>
+      </div>
+      <div class="pan-container">
+        <div class="pan-label">ԱՋ ՆԺԱՐ ▶</div>
+        <div class="pan" id="rightPan" data-side="right"></div>
+      </div>
     </div>
 
-    <!-- 2. ԽԱՆՈՒԹԻ ԷԿՐԱՆ -->
-    <div id="screen-shop" class="screen">
-        <div class="box-container">
-            <h2 id="shop-level-title">ՄԱԿԱՐԴԱԿ 1: ԱՐՍԵՆԱԼ</h2>
-            <p style="color: #fbbf24; font-size: 18px; font-weight: 600;">Հասանելի Ոսկի: <span id="player-gold">50</span> 🪙</p>
-            <div class="shop-grid" id="shop-items-container"></div>
-            <div style="display:flex; gap:15px; justify-content:center;">
-                <button onclick="showScreen('screen-levels')" style="background: #475569;">⬅️ Մակարդակներ</button>
-                <button onclick="startBattle()" style="font-size: 17px; padding: 12px 40px;">⚔️ Մարտի</button>
-            </div>
-        </div>
+    <div class="result-display" id="resultDisplay">Դեռ չի կշռվել…</div>
+
+    <div class="controls">
+      <button class="weigh-btn" id="weighBtn">⚖️ ԿՇՌԵԼ</button>
+      <button id="guessBtn">🔍 ԳՈՒՇԱԿԵԼ</button>
+      <button class="reset-btn" id="resetBtn">🔄 ՆՈՐ ԽԱՂ</button>
     </div>
 
-    <!-- 3. ՄԱՐՏԻ ԷԿՐԱՆ -->
-    <div id="screen-battle" class="screen">
-        <div class="battle-arena-container">
-            <div id="turn-indicator">✨ Ձեր հերթն է</div>
-
-            <div id="enemy-weapons-panel">
-                <div style="font-weight: 700; margin-bottom: 4px; color: #ef4444;">🎯 Հակառակորդի Արսենալը:</div>
-                <div id="enemy-weapons-list"></div>
-            </div>
-
-            <div id="game-over-overlay">
-                <div class="game-over-box">
-                    <h2 id="overlay-title" style="color: #fbbf24; font-size: 32px; margin-bottom: 20px; font-family: 'Cinzel', serif;"></h2>
-                    <div style="display: flex; gap: 15px; justify-content: center;">
-                        <button onclick="showScreen('screen-levels')">📜 Մակարդակներ</button>
-                        <button id="retry-level-btn" onclick="retryLevel()" style="background: linear-gradient(180deg, #d97706, #b45309); display: none;">🔄 Կրկին Փորձել</button>
-                        <button id="next-level-btn" onclick="nextLevel()" style="background: linear-gradient(180deg, #16a34a, #15803d); display: none;">⏩ Հաջորդ Մակարդակը</button>
-                    </div>
-                </div>
-            </div>
-
-
-            <div id="tutorial-overlay" style="display: flex; position: absolute; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 200; align-items: center; justify-content: center; flex-direction: column;">
-                <div style="background: rgba(15, 23, 42, 0.95); border: 2px solid #60a5fa; padding: 30px 40px; border-radius: 20px; text-align: center; max-width: 450px; box-shadow: 0 0 30px rgba(37,99,235,0.5);">
-                    <h3 style="color: #60a5fa; font-family: 'Cinzel', serif; font-size: 24px; margin-top: 0;">⚡ ԳԵՐՀԱՐՎԱԾԻ ԱԿՏԻՎԱՑՈՒՄ</h3>
-                    <p style="color: #e2e8f0; font-size: 15px; line-height: 1.6; margin: 15px 0;">
-                        Օգտագործիր այս սուպեր էֆեկտը, եթե կարծում ես, որ թշնամին անհաղթելի է։
-                    </p>
-                    <div style="font-size: 35px; margin: 10px 0;">⬇️</div>
-                    <button onclick="closeTutorial()" style="background: linear-gradient(180deg, #2563eb, #1d4ed8); border: 1px solid #60a5fa; padding: 10px 30px; font-size: 15px;">Հասկացա ➔</button>
-                </div>
-            </div>
-
-            <canvas id="battleCanvas" width="1920" height="700"></canvas>
-
-            <div id="hud-left-panel">
-                <div class="ground-weapons-tray" id="ground-weapons-tray"></div>
-                <!-- ⚡ SUPER ABILITY BUTTON -->
-                <button id="super-ability-btn" onclick="useSuperAbility()" style="display:none;">
-                    ⚡ ԷՆԵՐԳԵՏԻԿ ԿԱՅԾԱԿ
-                </button>
-            </div>
-        </div>
+    <div class="section-title">✅ ԿՇՌՎԱԾ ՈՍԿԻՆԵՐ</div>
+    <div class="weighed-area" id="weighedArea">
+      <span class="placeholder">Դեռ կշռված ոսկի չկա…</span>
     </div>
 
-    <script>
-        const levelConfigs = [
-            {
-                level: 1, name: "Սկսնակ Դաշտ", unlocked: true,
-                startGold: 60,
-                enemyHp: 35, enemyWeapons: [{ id: "fist", name: "Բռունցք", damage: 5, infinite: true }, { id: "rock", name: "Քար", damage: 8 }],
-                aiType: "random", bgColors: ["#020408", "#1e1b4b", "#065f46", "#022c22"]
-            },
-            {
-                level: 2, name: "Մայրամուտի Ամրոց", unlocked: true,
-                startGold: 90,
-                enemyHp: 55, enemyWeapons: [{ id: "fist", name: "Բռունցք", damage: 6, infinite: true }, { id: "rock", name: "Քար", damage: 10 }, { id: "sword", name: "Սուր", damage: 15 }],
-                aiType: "random", bgColors: ["#2e1065", "#7c2d12", "#78350f", "#451a03"]
-            },
-            {
-                level: 3, name: "Լուսնյակ Գիշեր", unlocked: true,
-                startGold: 130,
-                enemyHp: 80, enemyWeapons: [{ id: "fist", name: "Բռունցք", damage: 8, infinite: true }, { id: "sword", name: "Սուր", damage: 16 }, { id: "axe", name: "Կացին", damage: 22 }],
-                aiType: "smart", bgColors: ["#090d16", "#0f172a", "#1e293b", "#0f172a"]
-            },
-            {
-                level: 4, name: "Անեծքի Գոտի", unlocked: true,
-                startGold: 170,
-                enemyHp: 110, enemyWeapons: [{ id: "fist", name: "Բռունցք", damage: 10, infinite: true }, { id: "sword", name: "Սուր", damage: 20 }, { id: "axe", name: "Կացին", damage: 28 }],
-                aiType: "smart", bgColors: ["#450a0a", "#78350f", "#365314", "#1a2e05"]
-            },
-            {
-                level: 5, name: "Dark Lord-ի Գահը", unlocked: true,
-                startGold: 220,
-                enemyHp: 150, enemyWeapons: [{ id: "fist", name: "Բռունցք", damage: 12, infinite: true }, { id: "sword", name: "Էլիտար Սուր", damage: 25 }, { id: "axe", name: "Տիտան Կացին", damage: 35 }],
-                aiType: "smart", bgColors: ["#000000", "#581c87", "#312e81", "#1e1b4b"]
-            }
-        ];
+    <div class="feedback info" id="feedback">Սկսի՛ր խաղը։ Քաշիր ոսկիները և սեղմիր «ԿՇՌԵԼ»։</div>
+  </div>
 
-        let currentLevelIdx = 0;
-        let currentTurn = 0;
-        let gameOver = false;
+  <!-- Աջ սյուն -->
+  <div>
+    <div class="history-panel">
+      <h3>📜 ԿՇՌՈՒՄՆԵՐԻ ՊԱՏՄՈՒԹՅՈՒՆ</h3>
+      <div id="historyList"><div class="history-empty">Դեռ կշռում չկա…</div></div>
+    </div>
 
-        // ⚡ SUPER ABILITY VARIABLES
-        let superCooldownMax = 3; 
-        let superCooldownCurrent = 3; 
-        let flashEffectTimer = 0;
+    <div class="leaderboard">
+      <h3>🏅 ԱՌԱՋԱՏԱՐՆԵՐ</h3>
+      <div id="leaderboardList"><div class="lb-empty">Դեռ արդյունք չկա…</div></div>
+      <div class="lb-actions">
+        <button id="downloadCSV">⬇️ CSV</button>
+        <button class="reset-btn" id="clearAll">🗑️ Մաքրել</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-        let tutorialShownLevel3 = false;
+<!-- Անվան մոդալ -->
+<div class="start-screen" id="startScreen">
+  <div class="start-box">
+    <h2>🎮 Խաղի Մեկնարկ</h2>
+    <p>Գրիր քո անունը՝ խաղը սկսելու համար։<br>Արդյունքը կպահվի քո անվան տակ։</p>
+    <input type="text" id="playerNameInput" placeholder="Օր.՝ Արամ" maxlength="30" autofocus>
+    <div class="modal-actions">
+      <button id="startBtn">▶️ ՍԿՍԵԼ</button>
+    </div>
+  </div>
+</div>
 
-function closeTutorial() {
-    tutorialShowLevel3 = true
-    document.getElementById("tutorial-overlay").style.display = "none";
+<!-- Գուշակման մոդալ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>🔍 Ո՞րն է կեղծ ոսկին</h2>
+    <p style="color:#c9b58a; font-size:13px;">Ընտրիր տառը, նշիր՝ ծա՞նր է, թե՞ թեթև, և գրիր պատճառաբանությունդ։</p>
+    <div class="choice-grid" id="choiceGrid"></div>
+    <div class="type-toggle" id="typeToggle">
+      <button data-type="heavier">⬆️ ԱՎԵԼԻ ԾԱՆՐ</button>
+      <button data-type="lighter">⬇️ ԱՎԵԼԻ ԹԵԹԵՎ</button>
+    </div>
+    <textarea class="reason-input" id="reasonInput" placeholder="Ինչպե՞ս 3 կշռումներով հասար այս եզրակացությանը…"></textarea>
+    <div class="modal-actions">
+      <button id="submitGuess">✅ Ներկայացնել</button>
+      <button class="reset-btn" id="cancelGuess">Չեղարկել</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================== ՀԱՍՏԱՏՈՒՆՆԵՐ ===================== */
+const LETTERS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+const BASE_WEIGHT = 100;
+const DIFF = 0.35;
+const STORAGE_KEY = 'gold_game_results_v1';
+
+/* ===================== ՎԻՃԱԿ ===================== */
+let state = {
+  playerName: '',
+  fakeIndex: 0,
+  fakeHeavier: true,
+  positions: {},
+  weighedSet: new Set(),
+  weighCount: 0,
+  maxWeighs: 3,
+  gameOver: false,
+  startTime: null,
+  timerInterval: null,
+  history: [],
+  draggingEl: null,
+  guessSelected: null,
+  guessType: null
+};
+
+/* ===================== DOM ===================== */
+const tableArea = document.getElementById('tableArea');
+const leftPan = document.getElementById('leftPan');
+const rightPan = document.getElementById('rightPan');
+const weighedArea = document.getElementById('weighedArea');
+const weighBtn = document.getElementById('weighBtn');
+const guessBtn = document.getElementById('guessBtn');
+const resetBtn = document.getElementById('resetBtn');
+const resultDisplay = document.getElementById('resultDisplay');
+const feedback = document.getElementById('feedback');
+const timerEl = document.getElementById('timer');
+const weighCountEl = document.getElementById('weighCount');
+const playerDisplay = document.getElementById('playerDisplay');
+const historyList = document.getElementById('historyList');
+const leaderboardList = document.getElementById('leaderboardList');
+const modalOverlay = document.getElementById('modalOverlay');
+const choiceGrid = document.getElementById('choiceGrid');
+const reasonInput = document.getElementById('reasonInput');
+const submitGuess = document.getElementById('submitGuess');
+const cancelGuess = document.getElementById('cancelGuess');
+const startScreen = document.getElementById('startScreen');
+const playerNameInput = document.getElementById('playerNameInput');
+const startBtn = document.getElementById('startBtn');
+const typeToggle = document.getElementById('typeToggle');
+const downloadCSV = document.getElementById('downloadCSV');
+const clearAll = document.getElementById('clearAll');
+
+/* ===================== ՕԳՆԱԿԱՆ ===================== */
+function randInt(n) { return Math.floor(Math.random() * n); }
+
+function formatTime(ms) {
+  const totalSec = ms / 1000;
+  const m = Math.floor(totalSec / 60);
+  const s = Math.floor(totalSec % 60);
+  const tenth = Math.floor((ms % 1000) / 100);
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${tenth}`;
 }
 
-        let players = [
-            { id: 0, name: "Էպիկական Հերոս", hp: 100, maxHp: 100, gold: 50, weapons: [], castleX: 250, squashX: 1, squashY: 1, hitPopups: [] },
-            { id: 1, name: "Թշնամի", hp: 100, maxHp: 100, weapons: [], castleX: 1670, squashX: 1, squashY: 1, hitPopups: [] }
-        ];
-
-        let shopWeapons = [
-            { id: "fist", name: "Բռունցք", price: 0, damage: 5, infinite: true },
-            { id: "rock", name: "Էպիկական Քար", price: 15, damage: 9 },
-            { id: "sword", name: "Ասպետական Սուր", price: 30, damage: 15 },
-            { id: "axe", name: "Մարտական Կացին", price: 50, damage: 24 }
-        ];
-
-        let loadedWeapon = null;
-        let catapultAnim = { pulling: 0, releaseKick: 0 };
-        let flyingProjectile = null;
-        let particles = [];
-
-        const canvas = document.getElementById("battleCanvas");
-        const ctx = canvas.getContext("2d");
-
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-            document.getElementById(screenId).classList.add('active-screen');
-            if(screenId === 'screen-levels') renderLevelsUI();
-            if(screenId === 'screen-shop') updateShopUI();
-            if(screenId === 'screen-battle') requestAnimationFrame(gameLoop);
-        }
-
-        function renderLevelsUI() {
-            let container = document.getElementById("levels-container");
-            container.innerHTML = "";
-            levelConfigs.forEach((lvl, idx) => {
-                let card = document.createElement("div");
-                card.className = `level-card ${lvl.unlocked ? '' : 'locked'}`;
-                card.innerHTML = `
-                    <div class="level-title">${lvl.level}</div>
-                    <div style="font-weight:600; font-size:13px; color:#e2e8f0; margin-top:4px;">${lvl.name}</div>
-                    <div class="level-subtitle">${lvl.unlocked ? '🔓 Բացված' : '🔒 Փակ է'}</div>
-                `;
-                if(lvl.unlocked) {
-                    card.onclick = () => selectLevel(idx);
-                }
-                container.appendChild(card);
-            });
-        }
-
-        function selectLevel(idx) {
-            currentLevelIdx = idx;
-            let config = levelConfigs[idx];
-
-            players[0].hp = 100;
-            players[0].maxHp = 100;
-            players[0].gold = config.startGold;
-            players[0].weapons = [{ ...shopWeapons[0] }];
-
-            players[1].name = `Թշնամի (Lvl ${config.level})`;
-            players[1].hp = config.enemyHp;
-            players[1].maxHp = config.enemyHp;
-            players[1].weapons = JSON.parse(JSON.stringify(config.enemyWeapons));
-
-            // Super Ability-ն մշտապես լիցքավորված է սկզբում
-            superCooldownCurrent = superCooldownMax;
-
-            document.getElementById("shop-level-title").innerText = `ՄԱԿԱՐԴԱԿ ${config.level}: ${config.name}`;
-            showScreen('screen-shop');
-        }
-
-        function updateShopUI() {
-            document.getElementById("player-gold").innerText = players[0].gold;
-            let container = document.getElementById("shop-items-container");
-            container.innerHTML = "";
-
-            shopWeapons.forEach(w => {
-                let card = document.createElement("div");
-                card.className = "shop-item-card";
-                let isOwned = w.infinite ? "Անսահման" : `${w.price} 🪙`;
-                card.innerHTML = `
-                    <div>
-                        <div style="font-family:'Cinzel',serif; font-weight:700; color:#fbbf24; font-size:15px; margin-bottom:6px;">${w.name}</div>
-                        <div style="color:#94a3b8; font-size:12px; margin-bottom:10px;">⚔️ Վնաս: ${w.damage}</div>
-                    </div>
-                    <div>
-                        <div style="color:#f59e0b; font-weight:600; font-size:13px; margin-bottom:8px;">${isOwned}</div>
-                        <button onclick="buyWeapon('${w.id}')" style="width:100%; padding:6px; font-size:12px;" ${w.price > players[0].gold || w.infinite ? 'disabled' : ''}>Գնել</button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function buyWeapon(wId) {
-            let item = shopWeapons.find(x => x.id === wId);
-            if (item.infinite) return;
-            if (players[0].gold >= item.price) {
-                players[0].gold -= item.price;
-                players[0].weapons.push({ ...item });
-                updateShopUI();
-            }
-        }
-
-        function startBattle() {
-            gameOver = false;
-            currentTurn = 0;
-            showScreen('screen-battle');
-            updateHUD();
-        }
-
-        function selectWeaponFromGround(index) {
-            if (currentTurn !== 0 || flyingProjectile || gameOver) return;
-            let p = players[0];
-            if (p.weapons[index]) {
-                if (loadedWeapon && !loadedWeapon.infinite) p.weapons.push(loadedWeapon);
-                
-                let selected = p.weapons[index];
-                if (selected.infinite) {
-                    loadedWeapon = { ...selected };
-                } else {
-                    loadedWeapon = p.weapons.splice(index, 1)[0];
-                }
-                
-                catapultAnim.pulling = 1;
-                setTimeout(() => {
-                    fireCatapultAnimation();
-                }, 250);
-                updateHUD();
-            }
-        }
-
-        function fireCatapultAnimation() {
-            if (!loadedWeapon || flyingProjectile) return;
-            catapultAnim.pulling = 0;
-            catapultAnim.releaseKick = 1;
-
-            let weapon = loadedWeapon;
-            loadedWeapon = null;
-            launchProjectile(players[0], players[1], weapon);
-            updateHUD();
-        }
-
-        function launchProjectile(shooter, target, weapon) {
-    flyingProjectile = {
-        startX: shooter.castleX + (shooter.id === 0 ? 110 : -110), 
-        startY: 440,
-        targetX: target.castleX + (shooter.id === 0 ? -50 : 50), 
-        targetY: 450,
-        type: weapon.id,
-        damage: weapon.damage,
-        shooter: shooter,
-        target: target,
-        progress: 0,
-        speed: 0.04 // 👈 Սովորական զենքերի արագ կրակոց
-    };
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
 }
 
-        function useSuperAbility() {
-    if (currentLevelIdx < 2) return;
-    if (superCooldownCurrent < superCooldownMax) return;
-    if (currentTurn !== 0 || flyingProjectile || gameOver) return;
+/* ===================== ՊԱՀՊԱՆՈՒՄ (localStorage) ===================== */
+function loadResults() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) { return []; }
+}
 
-    superCooldownCurrent = 0;
+function saveResult(entry) {
+  const all = loadResults();
+  all.push(entry);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  renderLeaderboard();
+}
 
-    // ⚡ ԷՖԵԿՏԻ ՏԵՎՈՂՈՒԹՅՈՒՆԸ ԱՌԱՆՁԻՆ Է (Կապ չունի launchProjectile-ի հետ)
-    // 14 = կարճ/արագ կայծակ, 60 = 1 վայրկյան տևողությամբ դանդաղ էֆեկտ
-    flashEffectTimer = 14; 
+function clearResults() {
+  if (!confirm('Ջնջե՞լ բոլոր արդյունքները։')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  renderLeaderboard();
+}
 
-    let superDamage = 35;
-    let enemy = players[1];
+/* ===================== ԱՌԱՋԱՏԱՐՆԵՐԻ ԱՂՅՈՒՍԱԿ ===================== */
+function renderLeaderboard() {
+  const all = loadResults();
+  if (all.length === 0) {
+    leaderboardList.innerHTML = '<div class="lb-empty">Դեռ արդյունք չկա…</div>';
+    return;
+  }
 
-    if (superDamage > enemy.hp) {
-        let excess = superDamage - enemy.hp;
-        enemy.hp = 0;
-        players[0].hp = Math.max(0, players[0].hp - excess);
-    } else {
-        enemy.hp -= superDamage;
+  const sorted = [...all].sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    return a.timeMs - b.timeMs;
+  });
+
+  leaderboardList.innerHTML = sorted.map(e => {
+    const cls = e.correct ? 'lb-win' : 'lb-lose';
+    const mark = e.correct ? '✅ ՃԻՇՏ' : '❌ ՍԽԱԼ';
+    const typeMark = e.correctType ? '✓' : '✗';
+    return `<div class="lb-entry">
+      <div><span class="lb-name">${escapeHtml(e.name)}</span> — <span class="${cls}">${mark}</span></div>
+      <div class="lb-stat">
+        🎯 Միավոր՝ <b>${e.score}</b>/100 |
+        ⏱ <b>${formatTime(e.timeMs)}</b> |
+        ⚖️ <b>${e.weighCount}</b>
+      </div>
+      <div class="lb-stat">
+        Գուշակած՝ <b>${e.guessed}</b> (${e.guessedType === 'heavier' ? 'ծանր' : 'թեթև'}) ${typeMark} |
+        Ճիշտ՝ <b>${e.correctLetter}</b> (${e.correctType === 'heavier' ? 'ծանր' : 'թեթև'})
+      </div>
+      ${e.reason
+        ? `<div class="lb-reason">📝 ${escapeHtml(e.reason)}</div>`
+        : '<div class="lb-reason" style="color:#8a7a55;">📝 Պատճառաբանություն չի գրվել</div>'}
+    </div>`;
+  }).join('');
+}
+
+/* ===================== CSV ՆԵՐԲԵՌՆՈՒՄ ===================== */
+downloadCSV.addEventListener('click', () => {
+  const all = loadResults();
+  if (all.length === 0) { alert('Արդյունքներ չկան։'); return; }
+
+  const headers = ['Անուն','Ճիշտ','Միավոր','Ժամանակ','Կշռումներ','Գուշակած','Գուշակած տիպ','Ճիշտ տառ','Ճիշտ տիպ','Պատճառաբանություն'];
+  const rows = all.map(e => [
+    e.name,
+    e.correct ? 'Այո' : 'Ոչ',
+    e.score,
+    formatTime(e.timeMs),
+    e.weighCount,
+    e.guessed,
+    e.guessedType === 'heavier' ? 'Ծանր' : 'Թեթև',
+    e.correctLetter,
+    e.correctType === 'heavier' ? 'Ծանր' : 'Թեթև',
+    (e.reason || '').replace(/\n/g, ' ')
+  ]);
+
+  const csv = [headers, ...rows]
+    .map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(','))
+    .join('\n');
+
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'gold_game_results.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+clearAll.addEventListener('click', clearResults);
+
+/* ===================== ԽԱՂԻ ՍԿԻԶԲ ===================== */
+startBtn.addEventListener('click', () => {
+  const name = playerNameInput.value.trim();
+  if (!name) { alert('Խնդրում եմ գրել անունը։'); return; }
+  state.playerName = name;
+  playerDisplay.textContent = name;
+  startScreen.style.display = 'none';
+  newGame();
+});
+
+playerNameInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') startBtn.click();
+});
+
+function newGame() {
+  state.fakeIndex = randInt(12);
+  state.fakeHeavier = Math.random() < 0.5;
+  state.positions = {};
+  LETTERS.forEach(l => state.positions[l] = 'table');
+   state.weighedSet = new Set();
+  state.weighCount = 0;
+  state.gameOver = false;
+  state.history = [];
+  state.guessSelected = null;
+  state.guessType = null;
+
+  clearInterval(state.timerInterval);
+  state.startTime = Date.now();
+  state.timerInterval = setInterval(() => {
+    if (!state.gameOver) timerEl.textContent = formatTime(Date.now() - state.startTime);
+  }, 100);
+  timerEl.textContent = '00:00.0';
+
+  resultDisplay.textContent = 'Դեռ չի կշռվել…';
+  resultDisplay.className = 'result-display';
+  feedback.textContent = `Բարև՛, ${state.playerName}։ Սկսի՛ր խաղը։ Քաշիր ոսկիները և սեղմիր «ԿՇՌԵԼ»։`;
+  feedback.className = 'feedback info';
+  weighCountEl.textContent = '0';
+
+  weighBtn.disabled = false;
+  guessBtn.disabled = false;
+
+  render();
+  renderHistory();
+}
+
+/* ===================== ՌԵՆԴԵՐ ===================== */
+function render() {
+  tableArea.innerHTML = '';
+  leftPan.innerHTML = '';
+  rightPan.innerHTML = '';
+  weighedArea.innerHTML = '';
+
+  LETTERS.forEach((letter, idx) => {
+    const gold = document.createElement('div');
+    gold.className = 'gold';
+    gold.textContent = letter;
+    gold.dataset.letter = letter;
+    gold.dataset.index = idx;
+
+    if (state.weighedSet.has(letter)) gold.classList.add('weighed');
+
+    // === «✕» կոճակը ===
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-btn';
+    removeBtn.textContent = '✕';
+    removeBtn.title = 'Հանել / տեղափոխել';
+    removeBtn.type = 'button';
+    removeBtn.addEventListener('pointerdown', (e) => {
+      e.stopPropagation();
+    });
+    removeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      onRemoveGold(letter);
+    });
+    gold.appendChild(removeBtn);
+
+    gold.addEventListener('pointerdown', onPointerDown);
+    gold.addEventListener('click', onGoldClick);
+
+    const pos = state.positions[letter];
+    if (pos === 'table') tableArea.appendChild(gold);
+    else if (pos === 'left') leftPan.appendChild(gold);
+    else if (pos === 'right') rightPan.appendChild(gold);
+    else if (pos === 'weighed') weighedArea.appendChild(gold);
+  });
+
+  if (tableArea.children.length === 0) {
+    const ph = document.createElement('span');
+    ph.className = 'placeholder';
+    ph.textContent = 'Բոլոր ոսկիները տեղափոխված են…';
+    tableArea.appendChild(ph);
+  }
+  if (weighedArea.children.length === 0) {
+    const ph = document.createElement('span');
+    ph.className = 'placeholder';
+    ph.textContent = 'Դեռ կշռված ոսկի չկա…';
+    weighedArea.appendChild(ph);
+  }
+
+  weighBtn.disabled = state.gameOver || state.weighCount >= state.maxWeighs;
+  guessBtn.disabled = state.gameOver;
+}
+
+/* ===================== ՊԱՏՄՈՒԹՅՈՒՆ ===================== */
+function renderHistory() {
+  if (state.history.length === 0) {
+    historyList.innerHTML = '<div class="history-empty">Դեռ կշռում չկա…</div>';
+    return;
+  }
+  historyList.innerHTML = state.history.map((h, i) => {
+    const tag = h.result === 'equal' ? '<span class="res-tag eq">= ՀԱՎԱՍԱՐ</span>'
+              : h.result === 'left'  ? '<span class="res-tag lf">◀ ՁԱԽ ԾԱՆՐ</span>'
+              :                         '<span class="res-tag rt">ԱՋ ԾԱՆՐ ▶</span>';
+    return `<div class="history-item">
+      <b>#${i+1}</b> [${h.left.join(',')}] vs [${h.right.join(',')}] → ${tag}
+    </div>`;
+  }).join('');
+}
+
+/* ===================== ՈՍԿՈՒ ՍԵՂՄՈՒՄ ===================== */
+function onGoldClick(e) {
+  if (state.gameOver) return;
+  if (state.draggingEl) return;
+
+  const letter = e.currentTarget.dataset.letter;
+  const pos = state.positions[letter];
+
+  if ((pos === 'left' || pos === 'right') && state.weighedSet.has(letter)) {
+    state.positions[letter] = 'weighed';
+    render();
+  } else if ((pos === 'left' || pos === 'right') && !state.weighedSet.has(letter)) {
+    state.positions[letter] = 'table';
+    render();
+  } else if (pos === 'weighed') {
+    state.positions[letter] = 'table';
+    render();
+  }
+}
+
+/* ===================== «✕» ԿՈՃԱԿԻ ՏՐԱՄԱԲԱՆՈՒԹՅՈՒՆ ===================== */
+function onRemoveGold(letter) {
+  if (state.gameOver) return;
+
+  const pos = state.positions[letter];
+  const isWeighed = state.weighedSet.has(letter);
+
+  // 1) Կշռված ոսկին նժարի վրա → «Կշռված» դաշտ
+  // 2) Չկշռված ոսկին նժարի վրա → ՍԵՂԱՆ
+  // 3) «Կշռված» դաշտից → ՍԵՂԱՆ
+  // 4) Սեղանից → ոչինչ չի անում
+
+  if ((pos === 'left' || pos === 'right') && isWeighed) {
+    state.positions[letter] = 'weighed';
+  } else if ((pos === 'left' || pos === 'right') && !isWeighed) {
+    state.positions[letter] = 'table';
+  } else if (pos === 'weighed') {
+    state.positions[letter] = 'table';
+  } else {
+    return;
+  }
+
+  render();
+}
+
+/* ===================== DRAG & DROP ===================== */
+let dragGhost = null;
+let dragOffset = { x: 0, y: 0 };
+
+function onPointerDown(e) {
+  if (state.gameOver) return;
+  const gold = e.currentTarget;
+  const letter = gold.dataset.letter;
+  const pos = state.positions[letter];
+
+  if (pos === 'weighed') return;
+
+  state.draggingEl = gold;
+  gold.classList.add('dragging');
+
+  const rect = gold.getBoundingClientRect();
+  dragOffset.x = e.clientX - rect.left;
+  dragOffset.y = e.clientY - rect.top;
+
+  dragGhost = gold.cloneNode(true);
+  dragGhost.style.position = 'fixed';
+  dragGhost.style.pointerEvents = 'none';
+  dragGhost.style.zIndex = '9999';
+  dragGhost.style.opacity = '0.85';
+  dragGhost.style.width = rect.width + 'px';
+  dragGhost.style.height = rect.height + 'px';
+  dragGhost.style.left = rect.left + 'px';
+  dragGhost.style.top = rect.top + 'px';
+  document.body.appendChild(dragGhost);
+
+  gold.style.visibility = 'hidden';
+
+  document.addEventListener('pointermove', onPointerMove);
+  document.addEventListener('pointerup', onPointerUp);
+}
+
+function onPointerMove(e) {
+  if (!state.draggingEl || !dragGhost) return;
+  dragGhost.style.left = (e.clientX - dragOffset.x) + 'px';
+  dragGhost.style.top  = (e.clientY - dragOffset.y) + 'px';
+  highlightDropTargets(e.clientX, e.clientY);
+}
+
+function onPointerUp(e) {
+  if (!state.draggingEl) return;
+
+  document.removeEventListener('pointermove', onPointerMove);
+  document.removeEventListener('pointerup', onPointerUp);
+
+  const el = document.elementFromPoint(e.clientX, e.clientY);
+  let targetSide = null;
+
+  if (el) {
+    const pan = el.closest('.pan');
+    if (pan) targetSide = pan.dataset.side;
+    else if (el.closest('#tableArea')) targetSide = 'table';
+  }
+
+  const letter = state.draggingEl.dataset.letter;
+
+  if (targetSide) {
+    if (state.positions[letter] !== targetSide) {
+      state.positions[letter] = targetSide;
     }
+  }
 
-    enemy.squashX = 1.4;
-    enemy.squashY = 0.6;
-    enemy.hitPopups.push({ text: `⚡ -${superDamage} SUPER!`, alpha: 1, yOffset: 0 });
+  state.draggingEl.style.visibility = '';
+  state.draggingEl.classList.remove('dragging');
+  if (dragGhost) { dragGhost.remove(); dragGhost = null; }
+  state.draggingEl = null;
 
-    checkGameOver();
-    if (!gameOver) switchTurn();
-    updateHUD();
+  clearHighlights();
+  render();
 }
 
+function highlightDropTargets(x, y) {
+  clearHighlights();
+  const el = document.elementFromPoint(x, y);
+  if (!el) return;
+  const pan = el.closest('.pan');
+  if (pan) pan.classList.add('drop-active');
+  const table = el.closest('#tableArea');
+  if (table) table.classList.add('drop-active');
+}
 
-        function handleHit(projectile) {
-            let target = projectile.target;
-            let shooter = projectile.shooter;
-            let dmg = projectile.damage;
+function clearHighlights() {
+  document.querySelectorAll('.pan').forEach(p => p.classList.remove('drop-active'));
+  tableArea.classList.remove('drop-active');
+}
 
-            let excessDamage = 0;
-            if (dmg > target.hp) {
-                excessDamage = dmg - target.hp;
-                target.hp = 0;
-            } else {
-                target.hp -= dmg;
-            }
+/* ===================== ԿՇՌԵԼ ===================== */
+weighBtn.addEventListener('click', () => {
+  if (state.gameOver || state.weighCount >= state.maxWeighs) return;
 
-            target.squashX = 1.25;
-            target.squashY = 0.75;
-            target.hitPopups.push({ text: `-${dmg - excessDamage}`, alpha: 1, yOffset: 0 });
+  const leftLetters  = LETTERS.filter(l => state.positions[l] === 'left');
+  const rightLetters = LETTERS.filter(l => state.positions[l] === 'right');
 
-            if (excessDamage > 0) {
-                shooter.hp -= excessDamage;
-                if (shooter.hp < 0) shooter.hp = 0;
-                shooter.squashX = 1.2;
-                shooter.squashY = 0.8;
-                shooter.hitPopups.push({ text: `⚠️ Հետհարված: -${excessDamage}`, alpha: 1, yOffset: -25 });
-            }
+  if (leftLetters.length === 0 && rightLetters.length === 0) {
+    feedback.textContent = '⚠️ Տեղադրիր գոնե մեկ ոսկի նժարներից մեկի վրա։';
+    feedback.className = 'feedback info';
+    return;
+  }
+  if (leftLetters.length !== rightLetters.length) {
+    feedback.textContent = `⚠️ Նժարների ոսկիների քանակը պետք է հավասար լինի։ Ձախ՝ ${leftLetters.length}, աջ՝ ${rightLetters.length}։`;
+    feedback.className = 'feedback info';
+    return;
+  }
 
-            for (let i = 0; i < 25; i++) {
-                particles.push({
-                    x: target.castleX, y: 480,
-                    vx: (Math.random() - 0.5) * 14, vy: (Math.random() - 0.7) * 10,
-                    radius: Math.random() * 6 + 2, color: "#f59e0b", alpha: 1, decay: 0.02
-                });
-            }
+  let leftWeight = 0, rightWeight = 0;
+  leftLetters.forEach(l => {
+    const idx = LETTERS.indexOf(l);
+    let w = BASE_WEIGHT;
+    if (idx === state.fakeIndex) w += state.fakeHeavier ? DIFF : -DIFF;
+    leftWeight += w;
+  });
+  rightLetters.forEach(l => {
+    const idx = LETTERS.indexOf(l);
+    let w = BASE_WEIGHT;
+    if (idx === state.fakeIndex) w += state.fakeHeavier ? DIFF : -DIFF;
+    rightWeight += w;
+  });
 
-            checkGameOver();
-            if (!gameOver) switchTurn();
-            updateHUD();
-        }
+  const eps = 1e-9;
+  let result;
+  if (Math.abs(leftWeight - rightWeight) < eps) result = 'equal';
+  else if (leftWeight > rightWeight) result = 'left';
+  else result = 'right';
 
-        // ⚡ SUPER ABILITY USE FUNCTION
-        function useSuperAbility() {
-            if (currentLevelIdx < 2) return; // Միայն 3-րդ մակարդակից սկսած (Level 3-ը ունի index 2)
-            if (superCooldownCurrent < superCooldownMax) return;
-            if (currentTurn !== 0 || flyingProjectile || gameOver) return;
+  state.weighCount++;
+  weighCountEl.textContent = state.weighCount;
 
-            superCooldownCurrent = 0;
-            flashEffectTimer = 14; // Կայծակի էֆեկտի տևողությունը
+  leftLetters.forEach(l => state.weighedSet.add(l));
+  rightLetters.forEach(l => state.weighedSet.add(l));
 
-            let superDamage = 35;
-            let enemy = players[1];
+  state.history.push({
+    left: [...leftLetters],
+    right: [...rightLetters],
+    result: result
+  });
+  renderHistory();
 
-            if (superDamage > enemy.hp) {
-                let excess = superDamage - enemy.hp;
-                enemy.hp = 0;
-                players[0].hp = Math.max(0, players[0].hp - excess);
-            } else {
-                enemy.hp -= superDamage;
-            }
+  const sideName = result === 'left'  ? 'ՁԱԽ նժարը ավելի ծանր է'
+                 : result === 'right' ? 'ԱՋ նժարը ավելի ծանր է'
+                 :                      'ՀԱՎԱՍԱՐ են';
 
-            enemy.squashX = 1.4;
-            enemy.squashY = 0.6;
-            enemy.hitPopups.push({ text: `⚡ -${superDamage} SUPER!`, alpha: 1, yOffset: 0 });
+  resultDisplay.textContent = `Կշռում ${state.weighCount}՝ ${sideName}`;
+  resultDisplay.className = 'result-display ' +
+    (result === 'equal' ? 'res-equal' : result === 'left' ? 'res-left' : 'res-right');
 
-            checkGameOver();
-            if (!gameOver) switchTurn();
-            updateHUD();
-        }
+  if (state.weighCount >= state.maxWeighs) {
+    feedback.textContent = '🛑 Վերջ։ Օգտագործեցիր բոլոր 3 կշռումները։ Հիմա գուշակիր կեղծ ոսկին և գրիր պատճառաբանությունդ։';
+    feedback.className = 'feedback info';
+    weighBtn.disabled = true;
+  } else {
+    feedback.textContent = `Կշռում ${state.weighCount}-ը կատարված է։ Մնացել է ${state.maxWeighs - state.weighCount} կշռում։`;
+    feedback.className = 'feedback info';
+  }
 
-        function switchTurn() {
-            currentTurn = 1 - currentTurn;
-            
-            // ⚡ Ամեն անգամ երբ հերթը վերադառնում է խաղացողին, լիցքավորում ենք Super-ը
-            if (currentTurn === 0 && superCooldownCurrent < superCooldownMax) {
-                superCooldownCurrent++;
-            }
+  render();
+});
 
-            if (currentTurn === 1 && !gameOver) {
-                setTimeout(botTurn, 800);
-            }
-            updateHUD();
-        }
+/* ===================== ԳՈՒՇԱԿԵԼ ===================== */
+guessBtn.addEventListener('click', () => {
+  if (state.gameOver) return;
+  openGuessModal();
+});
 
-        function botTurn() {
-            if (gameOver) return;
-            let bot = players[1];
-            let config = levelConfigs[currentLevelIdx];
-            let chosenWeapon = null;
+function openGuessModal() {
+  choiceGrid.innerHTML = '';
+  state.guessSelected = null;
+  state.guessType = null;
+  reasonInput.value = '';
 
-            if (bot.weapons.length > 0) {
-                if (config.aiType === 'smart') {
-                    bot.weapons.sort((a, b) => b.damage - a.damage);
-                    chosenWeapon = bot.weapons[0];
-                } else {
-                    chosenWeapon = bot.weapons[Math.floor(Math.random() * bot.weapons.length)];
-                }
-                
-                let wIndex = bot.weapons.indexOf(chosenWeapon);
-                if (!chosenWeapon.infinite) {
-                    bot.weapons.splice(wIndex, 1);
-                }
-                launchProjectile(bot, players[0], chosenWeapon);
-            }
-            updateHUD();
-        }
+  LETTERS.forEach(l => {
+    const btn = document.createElement('button');
+    btn.textContent = l;
+    btn.dataset.letter = l;
+    btn.addEventListener('click', () => {
+      state.guessSelected = l;
+      choiceGrid.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    });
+    choiceGrid.appendChild(btn);
+  });
 
-        function checkGameOver() {
-            let nextBtn = document.getElementById("next-level-btn");
-            let retryBtn = document.getElementById("retry-level-btn");
+  typeToggle.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
 
-            if (players[0].hp <= 0 && players[1].hp <= 0) {
-                gameOver = true;
-                nextBtn.style.display = "none";
-                retryBtn.style.display = "inline-block";
-                document.getElementById("overlay-title").innerText = "💀 ԵՐԿՈՒՍԴ ԷԼ ՊԱՐՏՎԵՑԻՔ (OVERKILL)!";
-                setTimeout(() => { document.getElementById("game-over-overlay").style.display = "flex"; }, 600);
-            } else if (players[1].hp <= 0) {
-                gameOver = true;
-                if (currentLevelIdx + 1 < levelConfigs.length) {
-                    levelConfigs[currentLevelIdx + 1].unlocked = true;
-                    nextBtn.style.display = "inline-block";
-                } else {
-                    nextBtn.style.display = "none";
-                }
-                retryBtn.style.display = "none";
-                document.getElementById("overlay-title").innerText = "🏆 ՄԱԿԱՐԴԱԿՆ ԱՆՑՎԱԾ Է!";
-                setTimeout(() => { document.getElementById("game-over-overlay").style.display = "flex"; }, 600);
-            } else if (players[0].hp <= 0) {
-                gameOver = true;
-                nextBtn.style.display = "none";
-                retryBtn.style.display = "inline-block";
-                document.getElementById("overlay-title").innerText = "💀 ՊԱՐՏՈՒԹՅՈՒՆ";
-                setTimeout(() => { document.getElementById("game-over-overlay").style.display = "flex"; }, 600);
-            }
-        }
+  modalOverlay.classList.add('show');
+}
 
-        function retryLevel() {
-            document.getElementById("game-over-overlay").style.display = "none";
-            selectLevel(currentLevelIdx);
-        }
+typeToggle.querySelectorAll('button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    state.guessType = btn.dataset.type;
+    typeToggle.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  });
+});
 
-        function nextLevel() {
-            document.getElementById("game-over-overlay").style.display = "none";
-            if (currentLevelIdx + 1 < levelConfigs.length) {
-                selectLevel(currentLevelIdx + 1);
-            }
-        }
+cancelGuess.addEventListener('click', () => {
+  modalOverlay.classList.remove('show');
+});
 
-        function gameLoop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+submitGuess.addEventListener('click', () => {
+  if (!state.guessSelected) {
+    alert('Խնդրում եմ ընտրել կեղծ ոսկու տառը։');
+    return;
+  }
+  if (!state.guessType) {
+    alert('Խնդրում եմ նշել՝ կեղծը ծա՞նր է, թե՞ թեթև։');
+    return;
+  }
+  const reason = reasonInput.value.trim();
+  modalOverlay.classList.remove('show');
+  evaluateGuess(state.guessSelected, state.guessType, reason);
+});
 
-            let config = levelConfigs[currentLevelIdx];
-            let colors = config.bgColors;
+/* ===================== ԳՆԱՀԱՏՈՒՄ ===================== */
+function evaluateGuess(guessedLetter, guessedType, reason) {
+  state.gameOver = true;
+  clearInterval(state.timerInterval);
 
-            let skyGrad = ctx.createLinearGradient(0, 0, 0, 540);
-            skyGrad.addColorStop(0, colors[0]);
-            skyGrad.addColorStop(1, colors[1]);
-            ctx.fillStyle = skyGrad;
-            ctx.fillRect(0, 0, canvas.width, 540);
+  const elapsed = Date.now() - state.startTime;
+  const timeStr = formatTime(elapsed);
 
-            let groundGrad = ctx.createLinearGradient(0, 540, 0, 700);
-            groundGrad.addColorStop(0, colors[2]);
-            groundGrad.addColorStop(1, colors[3]);
-            ctx.fillStyle = groundGrad;
-            ctx.fillRect(0, 540, canvas.width, 160);
+  const correctLetter = LETTERS[state.fakeIndex];
+  const correctType = state.fakeHeavier ? 'heavier' : 'lighter';
 
-            catapultAnim.releaseKick *= 0.85;
+  const correctGuess = (guessedLetter === correctLetter);
+  const correctTypeGuess = (guessedType === correctType);
 
-            players.forEach(p => {
-                p.squashX += (1 - p.squashX) * 0.1;
-                p.squashY += (1 - p.squashY) * 0.1;
-            });
+  let score = 0;
+  if (correctGuess) score += 40;
+  if (correctTypeGuess) score += 20;
+  if (reason.length >= 10) score += 10;
 
-            drawDetailedBattlefield(players[0], true);
-            drawDetailedBattlefield(players[1], false);
+  const sec = elapsed / 1000;
+  if (sec <= 60) score += 30;
+  else if (sec <= 120) score += 20;
+  else if (sec <= 180) score += 10;
 
-            drawHpBar(players[0]);
-            drawHpBar(players[1]);
+  if (correctGuess && correctTypeGuess) {
+    if (state.weighCount <= 2) score += 10;
+  }
 
-            if (flyingProjectile) {
-                flyingProjectile.progress += flyingProjectile.speed;
-                if (flyingProjectile.progress >= 1) {
-                    let proj = flyingProjectile;
-                    flyingProjectile = null;
-                    handleHit(proj);
-                } else {
-                    let currentX = flyingProjectile.startX + (flyingProjectile.targetX - flyingProjectile.startX) * flyingProjectile.progress;
-                    let heightCurve = Math.sin(flyingProjectile.progress * Math.PI) * 260;
-                    let currentY = flyingProjectile.startY - heightCurve;
-                    drawTexturedWeapon(ctx, flyingProjectile.type, currentX, currentY, 45, flyingProjectile.progress * Math.PI * 6);
-                }
-            }
+  score = Math.max(0, Math.min(100, score));
 
-            players.forEach(p => {
-                for (let i = p.hitPopups.length - 1; i >= 0; i--) {
-                    let pop = p.hitPopups[i];
-                    pop.yOffset -= 1.5; pop.alpha -= 0.02;
-                    ctx.save();
-                    ctx.font = "bold 22px 'Cinzel', serif";
-                    ctx.fillStyle = `rgba(239, 68, 68, ${pop.alpha})`;
-                    ctx.textAlign = "center";
-                    ctx.fillText(pop.text, p.castleX, 320 + pop.yOffset);
-                    ctx.restore();
-                    if (pop.alpha <= 0) p.hitPopups.splice(i, 1);
-                }
-            });
+  const entry = {
+    name: state.playerName,
+    correct: correctGuess && correctTypeGuess,
+    score: score,
+    timeMs: elapsed,
+    weighCount: state.weighCount,
+    guessed: guessedLetter,
+    guessedType: guessedType,
+    correctLetter: correctLetter,
+    correctType: correctType,
+    reason: reason,
+    timestamp: Date.now()
+  };
+  saveResult(entry);
 
-            for (let i = particles.length - 1; i >= 0; i--) {
-                let pt = particles[i];
-                pt.x += pt.vx; pt.y += pt.vy; pt.alpha -= pt.decay;
-                if (pt.alpha <= 0) particles.splice(i, 1);
-                else {
-                    ctx.fillStyle = pt.color; ctx.globalAlpha = pt.alpha;
-                    ctx.beginPath(); ctx.arc(pt.x, pt.y, pt.radius, 0, Math.PI * 2); ctx.fill();
-                    ctx.globalAlpha = 1.0;
-                }
-            }
+  const fakeType = state.fakeHeavier ? 'ԱՎԵԼԻ ԾԱՆՐ' : 'ԱՎԵԼԻ ԹԵԹԵՎ';
+  const guessedTypeArm = guessedType === 'heavier' ? 'ԾԱՆՐ' : 'ԹԵԹԵՎ';
+  const correctTypeArm = state.fakeHeavier ? 'ԾԱՆՐ' : 'ԹԵԹԵՎ';
 
-            // ⚡ FLASH LIGHTNING EFFECT (Invert colors quickly)
-            if (flashEffectTimer > 0) {
-                flashEffectTimer--;
-                ctx.save();
-                if (flashEffectTimer > 7) {
-                    ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.globalCompositeOperation = "difference";
-                    ctx.fillStyle = "#ffffff";
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                } else {
-                    ctx.fillStyle = "rgba(0, 0, 0, 0.95)";
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.globalCompositeOperation = "exclusion";
-                    ctx.fillStyle = "#ffffff";
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                }
-                ctx.restore();
-            }
+  let html = '';
+  if (correctGuess && correctTypeGuess) {
+    html = `<div class="feedback win">
+      🎉 <b>ՃԻՇՏ Է՜</b> Կեղծ ոսկին <b>${correctLetter}</b>-ն էր (${fakeType})։<br>
+      ⏱ Ժամանակ՝ <b>${timeStr}</b> | ⚖️ Կշռումներ՝ <b>${state.weighCount}</b> | 🎯 Միավոր՝ <b>${score}</b>/100<br>
+      📝 Պատճառաբանություն՝ «${escapeHtml(reason) || '—'}»
+    </div>`;
+  } else if (correctGuess && !correctTypeGuess) {
+    html = `<div class="feedback lose">
+      ⚠️ <b>ԿԵՂԾ ՈՍԿԻՆ ՃԻՇՏ Է՝ ${correctLetter}</b>, բայց դու նշեցիր <b>${guessedTypeArm}</b>, իսկ իրականում <b>${correctTypeArm}</b> է։<br>
+      ⏱ Ժամանակ՝ <b>${timeStr}</b> | ⚖️ Կշռումներ՝ <b>${state.weighCount}</b> | 🎯 Միավոր՝ <b>${score}</b>/100<br>
+      📝 Պատճառաբանություն՝ «${escapeHtml(reason) || '—'}»
+    </div>`;
+  } else {
+    html = `<div class="feedback lose">
+      ❌ <b>ՍԽԱԼ Է՜</b> Կեղծ ոսկին <b>${correctLetter}</b>-ն էր (${fakeType}), ոչ թե ${guessedLetter}-ն։<br>
+      ⏱ Ժամանակ՝ <b>${timeStr}</b> | ⚖️ Կշռումներ՝ <b>${state.weighCount}</b> | 🎯 Միավոր՝ <b>${score}</b>/100<br>
+      📝 Պատճառաբանություն՝ «${escapeHtml(reason) || '—'}»
+    </div>`;
+  }
 
-            requestAnimationFrame(gameLoop);
-        }
+  feedback.className = 'feedback';
+  feedback.innerHTML = html;
 
-        function drawDetailedBattlefield(player, isHuman) {
-            let x = player.castleX;
-            ctx.save();
-            ctx.translate(x, 540);
-            ctx.scale(player.squashX * (isHuman ? 1 : -1), player.squashY);
+  weighBtn.disabled = true;
+  guessBtn.disabled = true;
+  render();
+}
 
-            ctx.fillStyle = "#334155"; ctx.fillRect(-100, -220, 140, 220);
-            ctx.fillStyle = "#1e293b"; ctx.fillRect(-80, -200, 100, 200);
-            ctx.fillStyle = "#475569";
-            for(let i = -100; i < 40; i += 35) ctx.fillRect(i, -240, 22, 20);
+/* ===================== ՆՈՐ ԽԱՂ ===================== */
+resetBtn.addEventListener('click', () => {
+  // Փակել բոլոր բաց մոդալները
+  modalOverlay.classList.remove('show');
 
-            ctx.save();
-            ctx.translate(-20, -220);
-            ctx.fillStyle = isHuman ? "#3b82f6" : "#dc2626"; ctx.fillRect(-12, -35, 24, 35);
-            ctx.fillStyle = "#94a3b8"; ctx.beginPath(); ctx.arc(0, -45, 12, 0, Math.PI * 2); ctx.fill();
-            ctx.restore();
+  // Կանգնեցնել ընթացիկ ժամանակը
+  clearInterval(state.timerInterval);
 
-            ctx.save();
-            let kickOffset = Math.sin(Date.now() * 0.02) * catapultAnim.releaseKick * 15;
-            ctx.translate(70 + kickOffset, 0);
-            ctx.strokeStyle = "#78350f"; ctx.lineWidth = 7;
-            ctx.beginPath(); ctx.moveTo(-20, 0); ctx.lineTo(20, -60); ctx.lineTo(40, 0); ctx.stroke();
+  // Մաքրել խաղացողի անունը և դաշտը
+  state.playerName = '';
+  playerNameInput.value = '';
+  playerDisplay.textContent = '—';
 
-            if (isHuman && loadedWeapon) {
-                drawTexturedWeapon(ctx, loadedWeapon.id, -10, -85, 35, 0);
-            }
-            ctx.restore();
+  // Կրկին ցույց տալ անվան մոդալը
+  startScreen.style.display = 'flex';
 
-            ctx.restore();
-        }
+  // Ֆոկուսը դնել դաշտի վրա
+  setTimeout(() => playerNameInput.focus(), 100);
+});
 
-        function drawTexturedWeapon(ctx, type, x, y, size, angle) {
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.rotate(angle);
-            if (type === "fist") {
-                ctx.fillStyle = "#fca5a5"; ctx.beginPath(); ctx.arc(0, 0, size * 0.35, 0, Math.PI * 2); ctx.fill();
-            } else if (type === "rock") {
-                ctx.fillStyle = "#64748b"; ctx.beginPath(); ctx.roundRect(-size*0.4, -size*0.4, size*0.8, size*0.8, 6); ctx.fill();
-            } else if (type === "sword") {
-                ctx.fillStyle = "#cbd5e1"; ctx.fillRect(-size*0.1, -size*0.5, size*0.2, size);
-            } else if (type === "axe") {
-                ctx.fillStyle = "#78350f"; ctx.fillRect(-size*0.1, -size*0.4, size*0.2, size);
-                ctx.fillStyle = "#dc2626"; ctx.beginPath(); ctx.arc(0, -size*0.2, size*0.4, 0, Math.PI); ctx.fill();
-            }
-            ctx.restore();
-        }
-
-        function drawHpBar(player) {
-            let x = player.castleX;
-            ctx.save();
-            ctx.translate(x, 160);
-            ctx.fillStyle = "rgba(3, 5, 8, 0.85)";
-            ctx.beginPath(); ctx.roundRect(-70, 0, 140, 16, 8); ctx.fill();
-            let fillW = (player.hp / player.maxHp) * 136;
-            ctx.fillStyle = player.hp > 40 ? "#16a34a" : "#dc2626";
-            ctx.beginPath(); ctx.roundRect(-68, 2, Math.max(0, fillW), 12, 6); ctx.fill();
-            ctx.fillStyle = "#ffffff"; ctx.font = "bold 13px 'Cinzel', serif"; ctx.textAlign = "center";
-            ctx.fillText(`${player.name} (${player.hp} HP)`, 0, -8);
-            ctx.restore();
-        }
-
-        function updateHUD() {
-            let tray = document.getElementById("ground-weapons-tray");
-            tray.innerHTML = "";
-            players[0].weapons.forEach((w, index) => {
-                let btn = document.createElement("button");
-                btn.className = "ground-weapon-card";
-                btn.innerHTML = `<div style="font-weight:700; font-size:12px;">${w.name}</div><div style="font-size:11px; color:#94a3b8;">⚔️ ${w.damage}</div>`;
-                btn.onclick = () => selectWeaponFromGround(index);
-                if (currentTurn !== 0 || flyingProjectile || gameOver) btn.disabled = true;
-                tray.appendChild(btn);
-            });
-
-            let enemyList = document.getElementById("enemy-weapons-list");
-            enemyList.innerHTML = players[1].weapons.map(w => `• ${w.name} (${w.damage} Dmg)`).join("<br>");
-
-            let indicator = document.getElementById("turn-indicator");
-            if (!gameOver) {
-                indicator.innerText = currentTurn === 0 ? "✨ Ձեր հերթն է" : "⚔️ Հակառակորդի հերթն է...";
-            }
-
-            // ⚡ SUPER ABILITY HUD UPDATE
-            let superBtn = document.getElementById("super-ability-btn");
-            if (superBtn) {
-                if (currentLevelIdx >= 2) { // Level 3-ից սկսած (index 2)
-                    superBtn.style.display = "inline-block";
-                    if (superCooldownCurrent >= superCooldownMax) {
-                        superBtn.disabled = (currentTurn !== 0 || flyingProjectile || gameOver);
-                        superBtn.innerText = "⚡ ԷՆԵՐԳԵՏԻԿ ԿԱՅԾԱԿ (100%)";
-                        superBtn.style.background = "linear-gradient(180deg, #2563eb, #1d4ed8)";
-                    } else {
-                        superBtn.disabled = true;
-                        let percent = Math.floor((superCooldownCurrent / superCooldownMax) * 100);
-                        superBtn.innerText = `⏳ Լիցքավորում... (${percent}%)`;
-                        superBtn.style.background = "#334155";
-                    }
-                } else {
-                    superBtn.style.display = "none";
-                }
-            }
-        }
-    </script>
+/* ===================== ՍԿԻԶԲ ===================== */
+renderLeaderboard();
+</script>
 </body>
 </html>
