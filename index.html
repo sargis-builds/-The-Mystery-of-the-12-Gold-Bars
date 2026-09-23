@@ -2,9 +2,11 @@
 <html lang="hy">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Mystery of the 12 Gold Bars — Multiplayer</title>
+
 <style>
-  * {
+   * {
     box-sizing: border-box;
     user-select: none;
     -webkit-user-select: none;
@@ -53,7 +55,6 @@
   .player-name { color: #ffd76e; font-weight: bold; }
   .level-badge { color: #ffd76e; font-weight: bold; }
 
-  /* Սկզբնական էկրան */
   .start-screen {
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.9);
@@ -91,7 +92,6 @@
   }
   .start-box input:focus { outline: 2px solid #ffd76e; }
 
-  /* Մակարդակի ընտրության բլոկ */
   .level-choice {
     display: flex;
     flex-direction: column;
@@ -128,9 +128,7 @@
     min-width: 40px;
     text-align: center;
   }
-  .level-card .level-info {
-    flex: 1;
-  }
+  .level-card .level-info { flex: 1; }
   .level-card .level-title {
     font-weight: bold;
     color: #ffd76e;
@@ -145,9 +143,9 @@
 
   .main-grid {
     display: grid;
-    grid-template-columns: 1fr 320px;
+    grid-template-columns: 1fr 340px;
     gap: 16px;
-    max-width: 1250px;
+    max-width: 1300px;
     margin: 0 auto;
   }
   @media (max-width: 950px) {
@@ -155,7 +153,6 @@
   }
   .game-col { min-width: 0; }
 
-  /* Սեղան */
   .table-area {
     display: flex;
     flex-wrap: wrap;
@@ -167,9 +164,9 @@
     border: 2px dashed #8a6a2a;
     border-radius: 14px;
     margin: 0 auto 14px;
+    touch-action: none;
   }
 
-  /* Ոսկի */
   .gold {
     width: 58px; height: 58px;
     border-radius: 50%;
@@ -186,12 +183,12 @@
     transition: transform .12s, box-shadow .12s;
     position: relative;
     touch-action: none;
+    -webkit-touch-callout: none;
   }
   .gold:hover { transform: scale(1.08); box-shadow: 0 0 18px #ffd76e; }
   .gold.dragging { opacity: .45; cursor: grabbing; }
   .gold.weighed { filter: saturate(0.6) brightness(0.85); }
 
-  /* «✕» կոճակը */
   .gold .remove-btn {
     position: absolute;
     top: -8px;
@@ -219,9 +216,7 @@
     filter: brightness(1.2);
     transform: scale(1.15);
   }
-  .gold .remove-btn:active {
-    transform: scale(0.95);
-  }
+  .gold .remove-btn:active { transform: scale(0.95); }
   .gold:not(.weighed) .remove-btn {
     opacity: 0;
     pointer-events: none;
@@ -231,7 +226,6 @@
     pointer-events: auto;
   }
 
-  /* Կշեռք */
   .scale-wrap {
     display: flex;
     justify-content: center;
@@ -255,12 +249,13 @@
     padding: 10px;
     box-shadow: inset 0 0 25px rgba(0,0,0,0.7), 0 6px 14px rgba(0,0,0,0.5);
     transition: border-color .2s, box-shadow .2s;
+    touch-action: none;
   }
   .pan.drop-active { border-color: #7fffd4; box-shadow: 0 0 20px #7fffd4 inset, 0 0 18px #7fffd4; }
 
   .result-display {
     text-align: center;
-    font-size: 19px;
+    font-size: 17px;
     font-weight: bold;
     min-height: 34px;
     margin: 6px 0 12px;
@@ -302,6 +297,7 @@
     gap: 8px;
     align-items: center;
     justify-content: center;
+    touch-action: none;
   }
   .weighed-area .placeholder { color: #6a9a6a; font-style: italic; font-size: 13px; }
   .section-title {
@@ -312,7 +308,6 @@
     letter-spacing: 1px;
   }
 
-  /* Տեղեկատվական վահանակ (մակարդակ 1 և 2) */
   .info-panel {
     background: linear-gradient(180deg, rgba(127,255,212,0.15), rgba(127,255,212,0.05));
     border: 2px solid #7fffd4;
@@ -324,16 +319,9 @@
     text-align: center;
     line-height: 1.6;
   }
-  .info-panel .info-icon {
-    font-size: 18px;
-    margin-right: 6px;
-  }
-  .info-panel .info-strong {
-    color: #ffd76e;
-    font-weight: bold;
-  }
+  .info-panel .info-icon { font-size: 18px; margin-right: 6px; }
+  .info-panel .info-strong { color: #ffd76e; font-weight: bold; }
 
-  /* Կշռումների պատմություն */
   .history-panel {
     background: rgba(0,0,0,0.35);
     border: 1px solid #7a5a25;
@@ -356,15 +344,14 @@
     background: rgba(255,215,110,0.08);
     border-left: 3px solid #b8860b;
     font-family: monospace;
-    font-size: 12.5px;
+    font-size: 12px;
   }
-  .history-item .res-tag { font-weight: bold; }
+  .history-item .res-tag { font-weight: bold; font-size: 12px; }
   .history-item .res-tag.eq { color: #7fffd4; }
   .history-item .res-tag.lf { color: #ff9d6e; }
   .history-item .res-tag.rt { color: #9db8ff; }
   .history-empty { color: #8a7a55; font-style: italic; }
-
-  /* Գուշակման մոդալ */
+   /* Գուշակման մոդալ */
   .modal-overlay {
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.85);
@@ -440,7 +427,24 @@
     resize: vertical;
     font-family: inherit;
   }
-  .modal-actions { display: flex; gap: 10px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
+  .reason-input.error {
+    border-color: #ff6b6b !important;
+    box-shadow: 0 0 12px rgba(255,107,107,0.5);
+  }
+  .reason-hint {
+    font-size: 12px;
+    color: #c9b58a;
+    margin-top: 6px;
+    font-style: italic;
+    line-height: 1.5;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
 
   .feedback {
     text-align: center;
@@ -465,25 +469,55 @@
     margin-bottom: 12px;
   }
 
-  /* Առաջատարների աղյուսակ */
   .leaderboard {
     background: linear-gradient(180deg, #2a1d0a, #1a1208);
     border: 2px solid #8b6508;
     border-radius: 14px;
     padding: 12px;
-    max-height: 600px;
+    max-height: 75vh;
+    min-height: 400px;
     overflow-y: auto;
+    overflow-x: hidden;
     box-shadow: 0 0 20px rgba(255,180,0,0.15);
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: #b8860b #1a1208;
   }
-  .leaderboard h3 {
-    margin: 0 0 10px;
+  .leaderboard::-webkit-scrollbar { width: 10px; }
+  .leaderboard::-webkit-scrollbar-track { background: #1a1208; border-radius: 8px; }
+  .leaderboard::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #d4a017, #8b6508);
+    border-radius: 8px;
+    border: 2px solid #1a1208;
+  }
+  .leaderboard::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #ffd76e, #b8860b);
+  }
+
+  .lb-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #5a3b00;
+  }
+  .lb-header h3 {
+    margin: 0;
     color: #ffd76e;
     font-size: 15px;
     letter-spacing: 1px;
-    text-align: center;
-    border-bottom: 1px solid #5a3b00;
-    padding-bottom: 8px;
+    text-align: left;
   }
+  .lb-count {
+    color: #c9b58a;
+    font-size: 12px;
+    background: rgba(0,0,0,0.4);
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px solid #5a3b00;
+  }
+
   .lb-entry {
     background: rgba(255,215,110,0.05);
     border-left: 3px solid #b8860b;
@@ -492,6 +526,13 @@
     margin-bottom: 6px;
     font-size: 12.5px;
     line-height: 1.5;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .lb-entry:hover {
+    background: rgba(255,215,110,0.15);
+    border-left-color: #ffd76e;
+    transform: translateX(3px);
   }
   .lb-entry .lb-name {
     color: #ffd76e;
@@ -515,17 +556,80 @@
   .lb-entry .lb-level.lv1 { background: #2e7d32; color: #d5ffd5; }
   .lb-entry .lb-level.lv2 { background: #b8860b; color: #fff3b0; }
   .lb-entry .lb-level.lv3 { background: #8b1a1a; color: #ffd5d5; }
-  .lb-entry .lb-reason {
-    color: #a8c8a8;
-    font-style: italic;
-    font-size: 11.5px;
+  .lb-entry .lb-detail-hint {
+    color: #7fffd4;
+    font-size: 11px;
     margin-top: 4px;
-    padding-left: 6px;
-    border-left: 2px solid #3fa34d;
+    font-style: italic;
   }
-  .lb-empty { color: #8a7a55; font-style: italic; text-align: center; padding: 20px 0; font-size: 13px; }
-  .lb-actions { display: flex; gap: 8px; margin-top: 10px; justify-content: center; flex-wrap: wrap; }
-  .lb-actions button { font-size: 12px; padding: 7px 12px; }
+
+  .lb-rank {
+    display: inline-block;
+    min-width: 34px;
+    text-align: center;
+    font-weight: bold;
+    margin-right: 6px;
+    font-size: 13px;
+  }
+  .lb-rank.gold { color: #ffd700; text-shadow: 0 0 8px #ffd700, 0 0 14px #ffa500; }
+  .lb-rank.silver { color: #e0e0e0; text-shadow: 0 0 8px #c0c0c0; }
+  .lb-rank.bronze { color: #e0a060; text-shadow: 0 0 8px #cd7f32; }
+  .lb-rank.top10 { color: #b0b0b0; text-shadow: 0 0 6px #909090; }
+  .lb-rank.normal { color: #8a7a55; }
+
+  .lb-entry.top-1 {
+    background: linear-gradient(90deg, rgba(255,215,0,0.18), rgba(255,215,110,0.05));
+    border-left-color: #ffd700;
+    box-shadow: 0 0 12px rgba(255,215,0,0.25);
+  }
+  .lb-entry.top-2 {
+    background: linear-gradient(90deg, rgba(192,192,192,0.15), rgba(255,215,110,0.05));
+    border-left-color: #c0c0c0;
+  }
+  .lb-entry.top-3 {
+    background: linear-gradient(90deg, rgba(205,127,50,0.15), rgba(255,215,110,0.05));
+    border-left-color: #cd7f32;
+  }
+  .lb-entry.top-10 { border-left-color: #b0b0b0; }
+  .lb-entry.hidden-entry { display: none; }
+
+  .lb-show-more {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 13px;
+    background: linear-gradient(180deg, #6a5a2a, #3a2a12);
+    color: #ffe9b0;
+    border: 2px solid #8b6508;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all .15s;
+  }
+  .lb-show-more:hover {
+    background: linear-gradient(180deg, #8a7a3a, #4a3a1a);
+    color: #ffd76e;
+  }
+
+  .lb-empty {
+    color: #8a7a55;
+    font-style: italic;
+    text-align: center;
+    padding: 20px 0;
+    font-size: 13px;
+  }
+  .lb-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .lb-actions button {
+    font-size: 12px;
+    padding: 7px 12px;
+  }
 
   .badge {
     display: inline-block;
@@ -536,6 +640,79 @@
     font-size: 11px;
     margin-right: 4px;
   }
+
+  /* Դետալային մոդալ */
+  .detail-modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.9);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 300;
+    padding: 14px;
+  }
+  .detail-modal-overlay.show { display: flex; }
+  .detail-modal {
+    background: linear-gradient(180deg, #3a2a12, #1a1208);
+    border: 3px solid #b8860b;
+    border-radius: 18px;
+    padding: 22px 26px;
+    max-width: 620px;
+    width: 100%;
+    box-shadow: 0 0 40px #ff9d00;
+    max-height: 92vh;
+    overflow-y: auto;
+    color: #f5e6c8;
+  }
+  .detail-modal h2 {
+    color: #ffd76e;
+    margin: 0 0 12px;
+    font-size: 20px;
+    text-align: center;
+  }
+  .detail-section {
+    background: rgba(0,0,0,0.35);
+    border-left: 3px solid #b8860b;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+  .detail-section h4 {
+    color: #ffd76e;
+    margin: 0 0 6px;
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+  .detail-section .detail-row {
+    color: #c9b58a;
+    margin-bottom: 4px;
+  }
+  .detail-section .detail-row b { color: #fff; }
+  .detail-section .detail-reason {
+    color: #d5fff0;
+    font-style: italic;
+    background: rgba(127,255,212,0.08);
+    padding: 8px 10px;
+    border-radius: 6px;
+    border-left: 3px solid #7fffd4;
+    margin-top: 6px;
+    white-space: pre-wrap;
+  }
+  .detail-section .detail-weigh {
+    font-family: monospace;
+    font-size: 12px;
+    color: #f5e6c8;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: rgba(255,215,110,0.08);
+    margin-bottom: 4px;
+  }
+  .detail-section .detail-weigh .res-tag { font-weight: bold; }
+  .detail-section .detail-weigh .res-tag.eq { color: #7fffd4; }
+  .detail-section .detail-weigh .res-tag.lf { color: #ff9d6e; }
+  .detail-section .detail-weigh .res-tag.rt { color: #9db8ff; }
 
   @media (max-width: 600px) {
     h1 { font-size: 20px; }
@@ -552,8 +729,17 @@
     .rules { font-size: 11.5px; }
     .history-item { font-size: 11.5px; }
     .lb-entry { font-size: 11.5px; }
+    .lb-rank { min-width: 28px; font-size: 12px; }
+  }
+
+  @media (hover: none) and (pointer: coarse) {
+    .gold .remove-btn {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
   }
 </style>
+ 
 </head>
 <body>
 
@@ -568,7 +754,6 @@
 
 <div class="main-grid">
   <div class="game-col">
-    <!-- Տեղեկատվական վահանակ (միայն 1 և 2 մակարդակներ) -->
     <div class="info-panel" id="infoPanel" style="display:none;"></div>
 
     <div class="rules" id="rulesPanel">
@@ -605,7 +790,6 @@
     <div class="feedback info" id="feedback">Ընտրի՛ր մակարդակ և սկսի՛ր խաղը։</div>
   </div>
 
-  <!-- Աջ սյուն -->
   <div>
     <div class="history-panel">
       <h3>📜 ԿՇՌՈՒՄՆԵՐԻ ՊԱՏՄՈՒԹՅՈՒՆ</h3>
@@ -613,7 +797,10 @@
     </div>
 
     <div class="leaderboard">
-      <h3>🏅 ԱՌԱՋԱՏԱՐՆԵՐ</h3>
+      <div class="lb-header">
+        <h3>🏅 ԱՌԱՋԱՏԱՐՆԵՐ</h3>
+        <span class="lb-count" id="lbCount">0</span>
+      </div>
       <div id="leaderboardList"><div class="lb-empty">Դեռ արդյունք չկա…</div></div>
       <div class="lb-actions">
         <button id="downloadCSV">⬇️ CSV</button>
@@ -622,8 +809,7 @@
     </div>
   </div>
 </div>
-
-<!-- Սկզբնական մոդալ՝ անուն + մակարդակ -->
+<!-- Սկզբնական մոդալ -->
 <div class="start-screen" id="startScreen">
   <div class="start-box">
     <h2>🎮 Խաղի Մեկնարկ</h2>
@@ -636,9 +822,7 @@
         <div class="level-icon">⭐</div>
         <div class="level-info">
           <div class="level-title">Մակարդակ 1 — Հեշտ</div>
-          <div class="level-desc">
-            <b>5 կշռում</b> • Հայտնի է՝ ծանր է, թե թեթև
-          </div>
+          <div class="level-desc"><b>5 կշռում</b> • Հայտնի է՝ ծանր է, թե թեթև</div>
         </div>
       </button>
 
@@ -646,9 +830,7 @@
         <div class="level-icon">⭐⭐</div>
         <div class="level-info">
           <div class="level-title">Մակարդակ 2 — Միջին</div>
-          <div class="level-desc">
-            <b>3 կշռում</b> • Հայտնի է՝ ծանր է, թե թեթև
-          </div>
+          <div class="level-desc"><b>3 կշռում</b> • Հայտնի է՝ ծանր է, թե թեթև</div>
         </div>
       </button>
 
@@ -656,9 +838,7 @@
         <div class="level-icon">⭐⭐⭐</div>
         <div class="level-info">
           <div class="level-title">Մակարդակ 3 — Դժվար</div>
-          <div class="level-desc">
-            <b>3 կշռում</b> • <b style="color:#ff9b8f;">Հայտնի չէ</b>՝ ծանր է, թե թեթև
-          </div>
+          <div class="level-desc"><b>3 կշռում</b> • <b style="color:#ff9b8f;">Հայտնի չէ</b>՝ ծանր է, թե թեթև</div>
         </div>
       </button>
     </div>
@@ -682,6 +862,9 @@
       <button data-type="lighter">⬇️ ԱՎԵԼԻ ԹԵԹԵՎ</button>
     </div>
     <textarea class="reason-input" id="reasonInput" placeholder="Ինչպե՞ս հասար այս եզրակացությանը…"></textarea>
+    <div class="reason-hint" id="reasonHint">
+      💡 <b>Պարտադիր է</b> գրել՝ ինչպես հասար եզրակացությանը։ Մեկնաբանությունը չի ազդում միավորի վրա, բայց պահվում է պատմության մեջ։
+    </div>
     <div class="modal-actions">
       <button id="submitGuess">✅ Ներկայացնել</button>
       <button class="reset-btn" id="cancelGuess">Չեղարկել</button>
@@ -689,9 +872,15 @@
   </div>
 </div>
 
+<!-- Դետալային մոդալ -->
+<div class="detail-modal-overlay" id="detailModalOverlay">
+  <div class="detail-modal" id="detailModalContent"></div>
+</div>
+
 <script>
-// ⬇️ ԱՅՍՏԵՂ ԿՊՑՆԵՔ ՄԱՍ 2-Ի JavaScript-Ը ⬇️
- /* ===================== ՀԱՍՏԱՏՈՒՆՆԵՐ ===================== */
+// ⬇️ ԱՅՍՏԵՂ ԿՊՑՆԵՔ ՄԱՍ 3-Ի JavaScript-Ը ⬇️
+
+/* ===================== ՀԱՍՏԱՏՈՒՆՆԵՐ ===================== */
 const LETTERS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
 const BASE_WEIGHT = 100;
 const DIFF = 0.35;
@@ -704,8 +893,8 @@ const LEVELS = {
     name: 'Հեշտ',
     icon: '⭐',
     maxWeighs: 5,
-    knownSign: true,           // հայտնի է՝ ծանր է, թե թեթև
-    scoreMap: { correctLetter: 50, correctType: 10, reason: 10, speed: 20, bonus: 10 }
+    knownSign: true,
+    scoreMap: { correctLetter: 50, correctType: 15, speed: 25, bonus: 10 }
   },
   2: {
     id: 2,
@@ -713,15 +902,15 @@ const LEVELS = {
     icon: '⭐⭐',
     maxWeighs: 3,
     knownSign: true,
-    scoreMap: { correctLetter: 40, correctType: 15, reason: 10, speed: 25, bonus: 10 }
+    scoreMap: { correctLetter: 45, correctType: 20, speed: 25, bonus: 10 }
   },
   3: {
     id: 3,
     name: 'Դժվար',
     icon: '⭐⭐⭐',
     maxWeighs: 3,
-    knownSign: false,          // հայտնի չէ՝ ծանր է, թե թեթև
-    scoreMap: { correctLetter: 40, correctType: 20, reason: 10, speed: 20, bonus: 10 }
+    knownSign: false,
+    scoreMap: { correctLetter: 45, correctType: 25, speed: 20, bonus: 10 }
   }
 };
 
@@ -737,6 +926,7 @@ let state = {
   maxWeighs: 3,
   gameOver: false,
   startTime: null,
+  frozenTime: null,
   timerInterval: null,
   history: [],
   draggingEl: null,
@@ -777,6 +967,9 @@ const levelChoice = document.getElementById('levelChoice');
 const typeToggle = document.getElementById('typeToggle');
 const downloadCSV = document.getElementById('downloadCSV');
 const clearAll = document.getElementById('clearAll');
+const lbCount = document.getElementById('lbCount');
+const detailModalOverlay = document.getElementById('detailModalOverlay');
+const detailModalContent = document.getElementById('detailModalContent');
 
 /* ===================== ՕԳՆԱԿԱՆ ===================== */
 function randInt(n) { return Math.floor(Math.random() * n); }
@@ -833,6 +1026,7 @@ function newGame() {
 
   state.fakeIndex = randInt(12);
   state.fakeHeavier = Math.random() < 0.5;
+  state.frozenTime = null;
   state.positions = {};
   LETTERS.forEach(l => state.positions[l] = 'table');
   state.weighedSet = new Set();
@@ -897,7 +1091,7 @@ function renderRules() {
   rulesPanel.innerHTML = `<span class="badge">Մակարդակ ${lv.id}</span>
     12 ոսկուց մեկը կեղծ է։ Ունես <b>${lv.maxWeighs} կշռում</b>։${extra}
     Քաշիր ոսկիները մկնիկով ձախ/աջ նժարների և սեղանի միջև։
-    Կշռված ոսկու վրա կհայնվի <b>կարմիր «✕»</b> — սեղմելով այն կտեղափոխվի «Կշռված ոսկիներ» դաշտ։`;
+    Կշռված ոսկու վրա կհայտնվի <b>կարմիր «✕»</b> — սեղմելով այն կտեղափոխվի «Կշռված ոսկիներ» դաշտ։`;
 }
 
 /* ===================== ՌԵՆԴԵՐ ===================== */
@@ -916,7 +1110,6 @@ function render() {
 
     if (state.weighedSet.has(letter)) gold.classList.add('weighed');
 
-    // «✕» կոճակ
     const removeBtn = document.createElement('button');
     removeBtn.className = 'remove-btn';
     removeBtn.textContent = '✕';
@@ -966,9 +1159,14 @@ function renderHistory() {
     return;
   }
   historyList.innerHTML = state.history.map((h, i) => {
-    const tag = h.result === 'equal' ? '<span class="res-tag eq">= ՀԱՎԱՍԱՐ</span>'
-              : h.result === 'left'  ? '<span class="res-tag lf">◀ ՁԱԽ ԾԱՆՐ</span>'
-              :                         '<span class="res-tag rt">ԱՋ ԾԱՆՐ ▶</span>';
+    let tag = '';
+    if (h.result === 'equal') {
+      tag = '<span class="res-tag eq">= ՀԱՎԱՍԱՐ</span>';
+    } else if (h.result === 'left') {
+      tag = '<span class="res-tag lf">◀ ՁԱԽ ԾԱՆՐ / ԱՋ ԹԵԹԵՎ</span>';
+    } else {
+      tag = '<span class="res-tag rt">ԱՋ ԾԱՆՐ / ՁԱԽ ԹԵԹԵՎ ▶</span>';
+    }
     return `<div class="history-item">
       <b>#${i+1}</b> [${h.left.join(',')}] vs [${h.right.join(',')}] → ${tag}
     </div>`;
@@ -1129,30 +1327,59 @@ function clearResults() {
 }
 
 /* ===================== ԱՌԱՋԱՏԱՐՆԵՐԻ ԱՂՅՈՒՍԱԿ ===================== */
+const LB_VISIBLE_INITIAL = 10;
+const LB_MAX = 50;
+
 function renderLeaderboard() {
   const all = loadResults();
+
   if (all.length === 0) {
     leaderboardList.innerHTML = '<div class="lb-empty">Դեռ արդյունք չկա…</div>';
+    if (lbCount) lbCount.textContent = '0';
     return;
   }
 
-  // Տեսակավորել՝ միավոր (նվազող), ապա մակարդակ (նվազող), ապա ժամանակ (աճող)
   const sorted = [...all].sort((a, b) => {
     if (b.score !== a.score) return b.score - a.score;
     if ((b.level || 1) !== (a.level || 1)) return (b.level || 1) - (a.level || 1);
     return a.timeMs - b.timeMs;
-  });
+  }).slice(0, LB_MAX);
 
-  leaderboardList.innerHTML = sorted.map(e => {
+  if (lbCount) lbCount.textContent = `${sorted.length} / ${all.length}`;
+
+  leaderboardList.innerHTML = sorted.map((e, idx) => {
     const cls = e.correct ? 'lb-win' : 'lb-lose';
     const mark = e.correct ? '✅ ՃԻՇՏ' : '❌ ՍԽԱԼ';
     const typeMark = e.correctType ? '✓' : '✗';
     const lv = e.level || 1;
     const lvInfo = LEVELS[lv] || LEVELS[1];
     const lvClass = `lv${lv}`;
+    const realIdx = all.indexOf(e);
 
-    return `<div class="lb-entry">
+    const rank = idx + 1;
+    let rankClass = 'normal';
+    if (rank === 1) rankClass = 'gold';
+    else if (rank === 2) rankClass = 'silver';
+    else if (rank === 3) rankClass = 'bronze';
+    else if (rank <= 10) rankClass = 'top10';
+
+    let topClass = '';
+    if (rank === 1) topClass = 'top-1';
+    else if (rank === 2) topClass = 'top-2';
+    else if (rank === 3) topClass = 'top-3';
+    else if (rank <= 10) topClass = 'top-10';
+
+    const hiddenClass = idx >= LB_VISIBLE_INITIAL ? 'hidden-entry' : '';
+
+    let medal = '';
+    if (rank === 1) medal = '🥇';
+    else if (rank === 2) medal = '🥈';
+    else if (rank === 3) medal = '🥉';
+    else if (rank <= 10) medal = '🏅';
+
+    return `<div class="lb-entry ${topClass} ${hiddenClass}" data-index="${realIdx}" data-rank="${rank}">
       <div>
+        <span class="lb-rank ${rankClass}">${medal} #${rank}</span>
         <span class="lb-name">${escapeHtml(e.name)}</span>
         <span class="lb-level ${lvClass}">${lvInfo.icon} ${lvInfo.name}</span>
         — <span class="${cls}">${mark}</span>
@@ -1166,11 +1393,103 @@ function renderLeaderboard() {
         Գուշակած՝ <b>${e.guessed}</b> (${e.guessedType === 'heavier' ? 'ծանր' : 'թեթև'}) ${typeMark} |
         Ճիշտ՝ <b>${e.correctLetter}</b> (${e.correctType === 'heavier' ? 'ծանր' : 'թեթև'})
       </div>
-      ${e.reason
-        ? `<div class="lb-reason">📝 ${escapeHtml(e.reason)}</div>`
-        : '<div class="lb-reason" style="color:#8a7a55;">📝 Պատճառաբանություն չի գրվել</div>'}
+      <div class="lb-detail-hint">👆 Սեղմիր՝ ամբողջ պատմությունը և մեկնաբանությունը տեսնելու համար</div>
     </div>`;
   }).join('');
+
+  const totalShown = sorted.length;
+  if (totalShown > LB_VISIBLE_INITIAL) {
+    const showMoreBtn = document.createElement('button');
+    showMoreBtn.className = 'lb-show-more';
+    showMoreBtn.textContent = `⬇️ Տես ավելին (${totalShown - LB_VISIBLE_INITIAL} հատ)`;
+    showMoreBtn.addEventListener('click', () => {
+      leaderboardList.querySelectorAll('.lb-entry.hidden-entry').forEach(el => {
+        el.classList.remove('hidden-entry');
+      });
+      showMoreBtn.remove();
+    });
+    leaderboardList.appendChild(showMoreBtn);
+  }
+
+  leaderboardList.querySelectorAll('.lb-entry').forEach(el => {
+    el.addEventListener('click', () => {
+      const idx = parseInt(el.dataset.index, 10);
+      const allResults = loadResults();
+      if (allResults[idx]) openDetailModal(allResults[idx]);
+    });
+  });
+}
+
+/* ===================== ԴԵՏԱԼԱՅԻՆ ՄՈԴԱԼ ===================== */
+function openDetailModal(entry) {
+  const lv = entry.level || 1;
+  const lvInfo = LEVELS[lv] || LEVELS[1];
+  const lvClass = `lv${lv}`;
+
+  const typeArm = entry.correctType === 'heavier' ? 'ԾԱՆՐ' : 'ԹԵԹԵՎ';
+  const guessedTypeArm = (entry.guessedType || entry.correctType) === 'heavier' ? 'ԾԱՆՐ' : 'ԹԵԹԵՎ';
+
+  let weighHistory = '';
+  if (entry.history && entry.history.length > 0) {
+    weighHistory = entry.history.map((h, i) => {
+      let tag = '';
+      if (h.result === 'equal') tag = '<span class="res-tag eq">= ՀԱՎԱՍԱՐ</span>';
+      else if (h.result === 'left') tag = '<span class="res-tag lf">◀ ՁԱԽ ԾԱՆՐ / ԱՋ ԹԵԹԵՎ</span>';
+      else tag = '<span class="res-tag rt">ԱՋ ԾԱՆՐ / ՁԱԽ ԹԵԹԵՎ ▶</span>';
+      return `<div class="detail-weigh"><b>#${i+1}</b> [${(h.left||[]).join(',')}] vs [${(h.right||[]).join(',')}] → ${tag}</div>`;
+    }).join('');
+  } else {
+    weighHistory = '<div class="detail-weigh" style="color:#8a7a55;">Կշռումների պատմություն չկա</div>';
+  }
+
+  const correctMark = entry.correct ? '✅ ՃԻՇՏ' : '❌ ՍԽԱԼ';
+
+  detailModalContent.innerHTML = `
+    <h2>📜 Խաղի Մանրամասներ</h2>
+
+    <div class="detail-section">
+      <h4>👤 ԽԱՂԱՑՈՂ</h4>
+      <div class="detail-row"><b>${escapeHtml(entry.name)}</b>
+        <span class="lb-level ${lvClass}" style="margin-left:8px;">${lvInfo.icon} ${lvInfo.name}</span>
+      </div>
+      <div class="detail-row">Արդյունք՝ <b>${correctMark}</b></div>
+      <div class="detail-row">Միավոր՝ <b>${entry.score}</b>/100</div>
+      <div class="detail-row">Ժամանակ՝ <b>${formatTime(entry.timeMs)}</b></div>
+      <div class="detail-row">Կշռումներ՝ <b>${entry.weighCount}</b>/${entry.maxWeighs || '?'}</div>
+    </div>
+
+    <div class="detail-section">
+      <h4>🎯 ԳՈՒՇԱԿՈՒՄ</h4>
+      <div class="detail-row">Գուշակած տառ՝ <b>${entry.guessed}</b> (${guessedTypeArm})</div>
+      <div class="detail-row">Ճիշտ տառ՝ <b>${entry.correctLetter}</b> (${typeArm})</div>
+    </div>
+
+    <div class="detail-section">
+      <h4>⚖️ ԿՇՌՈՒՄՆԵՐԻ ՊԱՏՄՈՒԹՅՈՒՆ</h4>
+      ${weighHistory}
+    </div>
+
+    <div class="detail-section">
+      <h4>📝 ՄԵԿՆԱԲԱՆՈՒԹՅՈՒՆ</h4>
+      <div class="detail-reason">${entry.reason ? escapeHtml(entry.reason) : '<i style="color:#8a7a55;">Չի գրվել</i>'}</div>
+    </div>
+
+    <div class="modal-actions" style="margin-top:14px;">
+      <button class="reset-btn" id="closeDetailModal">Փակել</button>
+    </div>
+  `;
+
+  detailModalOverlay.classList.add('show');
+
+  document.getElementById('closeDetailModal').addEventListener('click', () => {
+    detailModalOverlay.classList.remove('show');
+  });
+
+  detailModalOverlay.addEventListener('click', (e) => {
+    if (e.target === detailModalOverlay) {
+      detailModalOverlay.classList.remove('show');
+    }
+  });
 }
 
 /* ===================== CSV ՆԵՐԲԵՌՆՈՒՄ ===================== */
@@ -1227,7 +1546,6 @@ weighBtn.addEventListener('click', () => {
     return;
   }
 
-  // Հաշվել քաշերը
   let leftWeight = 0, rightWeight = 0;
   leftLetters.forEach(l => {
     const idx = LETTERS.indexOf(l);
@@ -1251,11 +1569,9 @@ weighBtn.addEventListener('click', () => {
   state.weighCount++;
   weighCountEl.textContent = state.weighCount;
 
-  // Նշել որպես կշռված
   leftLetters.forEach(l => state.weighedSet.add(l));
   rightLetters.forEach(l => state.weighedSet.add(l));
 
-  // Պահել պատմության մեջ
   state.history.push({
     left: [...leftLetters],
     right: [...rightLetters],
@@ -1263,8 +1579,6 @@ weighBtn.addEventListener('click', () => {
   });
   renderHistory();
 
-  // Ցուցադրել արդյունքը
-    // Ցուցադրել արդյունքը — միշտ հիշեցնելով ԵՐԿՈՒ հնարավորությունը
   let sideName = '';
   if (result === 'left') {
     sideName = '◀ ՁԱԽ ԾԱՆՐ / ԱՋ ԹԵԹԵՎ';
@@ -1275,19 +1589,23 @@ weighBtn.addEventListener('click', () => {
   }
 
   resultDisplay.textContent = `Կշռում ${state.weighCount}՝ ${sideName}`;
-
-  resultDisplay.textContent = `Կշռում ${state.weighCount}՝ ${sideName}`;
   resultDisplay.className = 'result-display ' +
     (result === 'equal' ? 'res-equal' : result === 'left' ? 'res-left' : 'res-right');
 
-  if (state.weighCount >= state.maxWeighs) {
-    feedback.textContent = `🛑 Վերջ։ Օգտագործեցիր բոլոր ${state.maxWeighs} կշռումները։ Հիմա գուշակիր կեղծ ոսկին և գրիր պատճառաբանությունդ։`;
-    feedback.className = 'feedback info';
-    weighBtn.disabled = true;
+  let hintText = '';
+  if (result === 'left') {
+    hintText = '💡 Հնարավոր է՝ ձախում <b>ԾԱՆՐ</b> կեղծ, կամ աջում <b>ԹԵԹԵՎ</b> կեղծ։';
+  } else if (result === 'right') {
+    hintText = '💡 Հնարավոր է՝ աջում <b>ԾԱՆՐ</b> կեղծ, կամ ձախում <b>ԹԵԹԵՎ</b> կեղծ։';
   } else {
-    const remaining = state.maxWeighs - state.weighCount;
-    feedback.textContent = `Կշռում ${state.weighCount}-ը կատարված է։ Մնացել է ${remaining} կշռում։`;
-    feedback.className = 'feedback info';
+    hintText = '💡 Կեղծը <b>կշռված չէ</b> այս երկու խմբերում։';
+  }
+  feedback.innerHTML = hintText;
+  feedback.className = 'feedback info';
+
+  if (state.weighCount >= state.maxWeighs) {
+    feedback.innerHTML = `🛑 Վերջ։ Օգտագործեցիր բոլոր ${state.maxWeighs} կշռումները։ Հիմա գուշակիր կեղծ ոսկին և գրիր պատճառաբանությունդ։`;
+    weighBtn.disabled = true;
   }
 
   render();
@@ -1296,6 +1614,9 @@ weighBtn.addEventListener('click', () => {
 /* ===================== ԳՈՒՇԱԿԵԼ ===================== */
 guessBtn.addEventListener('click', () => {
   if (state.gameOver) return;
+  clearInterval(state.timerInterval);
+  state.frozenTime = Date.now() - state.startTime;
+  timerEl.textContent = formatTime(state.frozenTime);
   openGuessModal();
 });
 
@@ -1306,19 +1627,12 @@ function openGuessModal() {
   state.guessSelected = null;
   state.guessType = null;
   reasonInput.value = '';
+  reasonInput.classList.remove('error');
 
-  // Թարմացնել մոդալի հուշումը ըստ մակարդակի
   if (lv.knownSign) {
     const sign = state.fakeHeavier ? 'ԱՎԵԼԻ ԾԱՆՐ' : 'ԱՎԵԼԻ ԹԵԹԵՎ';
-    guessHint.innerHTML = `Ընտրիր կեղծ ոսկու տառը։ Հայտնի է՝ այն <b>${sign}</b> է, բայց դու դեռ պետք է հաստատես։ Գրիր պատճառաբանությունդ։`;
-    // Ավտոմատ նշել ճիշտ տիպը (ըստ մակարդակի՝ հայտնի է)
+    guessHint.innerHTML = `Ընտրիր կեղծ ոսկու տառը։ Հայտնի է՝ այն <b>${sign}</b> է։ Գրիր պատճառաբանությունդ։`;
     state.guessType = state.fakeHeavier ? 'heavier' : 'lighter';
-    // Ընտրել համապատասխան կոճակը
-    typeToggle.querySelectorAll('button').forEach(b => {
-      b.classList.remove('selected');
-      if (b.dataset.type === state.guessType) b.classList.add('selected');
-    });
-    // Թաքցնել type-toggle-ը (քանի որ հայտնի է)
     typeToggle.style.display = 'none';
   } else {
     guessHint.innerHTML = 'Ընտրիր տառը, նշիր՝ ծա՞նր է, թե՞ թեթև, և գրիր պատճառաբանությունդ։';
@@ -1351,6 +1665,11 @@ typeToggle.querySelectorAll('button').forEach(btn => {
 
 cancelGuess.addEventListener('click', () => {
   modalOverlay.classList.remove('show');
+  state.gameOver = false;
+  clearInterval(state.timerInterval);
+  state.timerInterval = setInterval(() => {
+    if (!state.gameOver) timerEl.textContent = formatTime(Date.now() - state.startTime);
+  }, 100);
 });
 
 submitGuess.addEventListener('click', () => {
@@ -1363,7 +1682,17 @@ submitGuess.addEventListener('click', () => {
     alert('Խնդրում եմ նշել՝ կեղծը ծա՞նր է, թե՞ թեթև։');
     return;
   }
+
   const reason = reasonInput.value.trim();
+
+  if (reason.length < 10) {
+    reasonInput.classList.add('error');
+    reasonInput.focus();
+    alert('⚠️ Մեկնաբանությունը պարտադիր է (≥10 նշան)։ Խնդրում եմ գրել, թե ինչպես հասար եզրակացությանը։');
+    return;
+  }
+  reasonInput.classList.remove('error');
+
   modalOverlay.classList.remove('show');
   evaluateGuess(state.guessSelected, state.guessType, reason);
 });
@@ -1374,7 +1703,7 @@ function evaluateGuess(guessedLetter, guessedType, reason) {
   clearInterval(state.timerInterval);
 
   const lv = LEVELS[state.level];
-  const elapsed = Date.now() - state.startTime;
+  const elapsed = state.frozenTime || (Date.now() - state.startTime);
   const timeStr = formatTime(elapsed);
 
   const correctLetter = LETTERS[state.fakeIndex];
@@ -1383,20 +1712,16 @@ function evaluateGuess(guessedLetter, guessedType, reason) {
   const correctGuess = (guessedLetter === correctLetter);
   const correctTypeGuess = (guessedType === correctType);
 
-  // === ՄԻԱՎՈՐՆԵՐ ըստ մակարդակի ===
   let score = 0;
   if (correctGuess) score += lv.scoreMap.correctLetter;
   if (correctTypeGuess) score += lv.scoreMap.correctType;
-  if (reason.length >= 10) score += lv.scoreMap.reason;
 
-  // Արագություն
   const sec = elapsed / 1000;
   const maxSpeed = lv.scoreMap.speed;
   if (sec <= 60) score += maxSpeed;
   else if (sec <= 120) score += Math.round(maxSpeed * 0.66);
   else if (sec <= 180) score += Math.round(maxSpeed * 0.33);
 
-  // Bonus՝ քիչ կշռումով լուծելու համար
   if (correctGuess && correctTypeGuess) {
     const used = state.weighCount;
     const max = state.maxWeighs;
@@ -1406,7 +1731,6 @@ function evaluateGuess(guessedLetter, guessedType, reason) {
 
   score = Math.max(0, Math.min(100, score));
 
-  // === ՊԱՀՊԱՆԵԼ ===
   const entry = {
     name: state.playerName,
     level: state.level,
@@ -1420,11 +1744,15 @@ function evaluateGuess(guessedLetter, guessedType, reason) {
     correctLetter: correctLetter,
     correctType: correctType,
     reason: reason,
+    history: state.history.map(h => ({
+      left: [...h.left],
+      right: [...h.right],
+      result: h.result
+    })),
     timestamp: Date.now()
   };
   saveResult(entry);
 
-  // === ՑՈՒՑԱԴՐԵԼ ===
   const fakeType = state.fakeHeavier ? 'ԱՎԵԼԻ ԾԱՆՐ' : 'ԱՎԵԼԻ ԹԵԹԵՎ';
   const guessedTypeArm = (guessedType || correctType) === 'heavier' ? 'ԾԱՆՐ' : 'ԹԵԹԵՎ';
   const correctTypeArm = state.fakeHeavier ? 'ԾԱՆՐ' : 'ԹԵԹԵՎ';
@@ -1434,21 +1762,25 @@ function evaluateGuess(guessedLetter, guessedType, reason) {
     html = `<div class="feedback win">
       🎉 <b>ՃԻՇՏ Է՜</b> Կեղծ ոսկին <b>${correctLetter}</b>-ն էր (${fakeType})։<br>
       ⏱ Ժամանակ՝ <b>${timeStr}</b> | ⚖️ Կշռումներ՝ <b>${state.weighCount}/${state.maxWeighs}</b> | 🎯 Միավոր՝ <b>${score}</b>/100<br>
-      📝 Պատճառաբանություն՝ «${escapeHtml(reason) || '—'}»
+      📝 Պատճառաբանություն՝ «${escapeHtml(reason)}»
     </div>`;
   } else if (correctGuess && !correctTypeGuess) {
     html = `<div class="feedback lose">
       ⚠️ <b>ԿԵՂԾ ՈՍԿԻՆ ՃԻՇՏ Է՝ ${correctLetter}</b>, բայց դու նշեցիր <b>${guessedTypeArm}</b>, իսկ իրականում <b>${correctTypeArm}</b> է։<br>
       ⏱ Ժամանակ՝ <b>${timeStr}</b> | ⚖️ Կշռումներ՝ <b>${state.weighCount}/${state.maxWeighs}</b> | 🎯 Միավոր՝ <b>${score}</b>/100<br>
-      📝 Պատճառաբանություն՝ «${escapeHtml(reason) || '—'}»
+      📝 Պատճառաբանություն՝ «${escapeHtml(reason)}»
     </div>`;
   } else {
     html = `<div class="feedback lose">
       ❌ <b>ՍԽԱԼ Է՜</b> Կեղծ ոսկին <b>${correctLetter}</b>-ն էր (${fakeType}), ոչ թե ${guessedLetter}-ն։<br>
       ⏱ Ժամանակ՝ <b>${timeStr}</b> | ⚖️ Կշռումներ՝ <b>${state.weighCount}/${state.maxWeighs}</b> | 🎯 Միավոր՝ <b>${score}</b>/100<br>
-      📝 Պատճառաբանություն՝ «${escapeHtml(reason) || '—'}»
+      📝 Պատճառաբանություն՝ «${escapeHtml(reason)}»
     </div>`;
   }
+
+  html += `<div style="margin-top:8px; font-size:12.5px; color:#c9b58a; font-style:italic;">
+    ℹ️ Մեկնաբանությունը պահվել է պատմության մեջ և չի ազդել միավորի վրա։
+  </div>`;
 
   feedback.className = 'feedback';
   feedback.innerHTML = html;
@@ -1458,36 +1790,27 @@ function evaluateGuess(guessedLetter, guessedType, reason) {
   render();
 }
 
-/* ===================== ՆՈՐ ԽԱՂ (վերադառնալ ընտրությանը) ===================== */
+/* ===================== ՆՈՐ ԽԱՂ ===================== */
 resetBtn.addEventListener('click', () => {
-  // Փակել մոդալները
   modalOverlay.classList.remove('show');
-
-  // Կանգնեցնել ժամանակը
   clearInterval(state.timerInterval);
 
-  // Մաքրել անունն ու մակարդակը
   state.playerName = '';
   state.selectedLevel = null;
   playerNameInput.value = '';
   playerDisplay.textContent = '—';
   levelDisplay.textContent = '—';
 
-  // Մաքրել մակարդակի ընտրությունը
   levelChoice.querySelectorAll('.level-card').forEach(c => c.classList.remove('selected'));
-
-  // Թարմացնել infoPanel-ը
   infoPanel.style.display = 'none';
 
-  // Կրկին ցույց տալ սկզբնական մոդալը
   startScreen.style.display = 'flex';
-
-  // Ֆոկուս դաշտի վրա
   setTimeout(() => playerNameInput.focus(), 100);
 });
 
 /* ===================== ՍԿԻԶԲ ===================== */
 renderLeaderboard();
+ 
 </script>
 </body>
 </html>
