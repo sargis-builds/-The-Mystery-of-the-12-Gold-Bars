@@ -1264,9 +1264,17 @@ weighBtn.addEventListener('click', () => {
   renderHistory();
 
   // Ցուցադրել արդյունքը
-  const sideName = result === 'left'  ? 'ՁԱԽ նժարը ավելի ծանր է'
-                 : result === 'right' ? 'ԱՋ նժարը ավելի ծանր է'
-                 :                      'ՀԱՎԱՍԱՐ են';
+    // Ցուցադրել արդյունքը — միշտ հիշեցնելով ԵՐԿՈՒ հնարավորությունը
+  let sideName = '';
+  if (result === 'left') {
+    sideName = '◀ ՁԱԽ ԾԱՆՐ / ԱՋ ԹԵԹԵՎ';
+  } else if (result === 'right') {
+    sideName = 'ԱՋ ԾԱՆՐ / ՁԱԽ ԹԵԹԵՎ ▶';
+  } else {
+    sideName = '= ՀԱՎԱՍԱՐ';
+  }
+
+  resultDisplay.textContent = `Կշռում ${state.weighCount}՝ ${sideName}`;
 
   resultDisplay.textContent = `Կշռում ${state.weighCount}՝ ${sideName}`;
   resultDisplay.className = 'result-display ' +
